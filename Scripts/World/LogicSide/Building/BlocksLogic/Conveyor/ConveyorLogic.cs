@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ConveyorLogic : BuildingLogic
+public class ConveyorLogic : BuildingLogic, IItemAcceptor
 {
     private int conveyorTickSpeed;
     private Item[] itemBuffer;
@@ -53,7 +53,7 @@ public class ConveyorLogic : BuildingLogic
             {
                 Vector3 start = basePos + new Vector3(size * 0.05f, i * offset, 0); 
                 Vector3 end = start + Vector3.up * 0.1f;
-                Debug.DrawLine(start, end, c, 0.01f, false);
+                Debug.DrawLine(start, end, c, 0.1f, false);
             }
         }
     }
@@ -117,19 +117,9 @@ public class ConveyorLogic : BuildingLogic
 
         var logic = fwdTile.building.logic;
 
-        // Intentar insertar en el siguiente building
-        if (logic is ConveyorLogic conveyorLogic)
+        if (logic is IItemAcceptor acceptor)
         {
-            // IMPORTANTE: Solo insertar si el otro conveyor puede aceptar (primer slot libre)
-            if (conveyorLogic.CanAcceptItem() && conveyorLogic.TryInsert(item))
-            {
-                itemBuffer[index] = null;
-                return true;
-            }
-        }
-        else if (logic is StorageLogic storageLogic)
-        {
-            if (storageLogic.inventory.Add(item, 1))
+            if (acceptor.CanAccept(item) && acceptor.Insert(item))
             {
                 itemBuffer[index] = null;
                 return true;
@@ -155,4 +145,22 @@ public class ConveyorLogic : BuildingLogic
         }
         return false;
     }
+
+    public bool CanAccept(Item item)
+    {
+        // Solo puede aceptar si hay espacio en el primer slot
+        return itemBuffer[0] == null;
+    }
+
+    public bool Insert(Item item)
+    {
+        if (CanAccept(item))
+        {
+            itemBuffer[0] = item;
+            itemProgress[0] = 0; // reinicia el progreso
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -21,8 +21,7 @@ public class PlayerMover : MonoBehaviour
     private void Update()
     {
         moveInputs = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        lookDirection = (mousePos - transform.position).normalized;
+        lookDirection = moveInputs.normalized;
     }
 
     private void FixedUpdate()
@@ -30,7 +29,7 @@ public class PlayerMover : MonoBehaviour
         if (moveInputs.sqrMagnitude > 0.01f)
         {
             // Acelera
-            velocity += moveInputs.normalized * acceleration * Time.fixedDeltaTime;
+            velocity += moveInputs.normalized * (acceleration * Time.fixedDeltaTime);
             velocity = Vector2.ClampMagnitude(velocity, moveSpeed);
         }
         else
