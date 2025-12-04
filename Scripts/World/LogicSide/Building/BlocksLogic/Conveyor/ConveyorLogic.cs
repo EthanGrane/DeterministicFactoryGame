@@ -41,22 +41,22 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
 
     private void DrawDebug()
     {
-        return;
         Vector2Int fwd = ForwardFromRotation(building.rotation);
-        
-        Vector3 basePos = new Vector3(building.position.x + 0.5f, building.position.y + 0.5f, 0); 
+        Vector2Int right = new Vector2Int(-fwd.y, fwd.x); // Vector perpendicular a fwd
+
+        Vector3 basePos = new Vector3(building.position.x + 0.5f, building.position.y + 0.5f, 0);
         float offset = 1f / slotCount;
-        
+
         for (int i = 0; i < slotCount; i++)
         {
             // Mostrar progreso con color gradual
-            float progressRatio = itemBuffer[i] != null ? (float)itemProgress[i] / conveyorTickSpeed : 0;
             Color c = itemBuffer[i] == null ? Color.red : Color.green;
-            
+
             for (int size = -1; size <= 1; size++)
             {
-                Vector3 start = basePos + new Vector3(size * 0.05f, i * offset, 0); 
-                Vector3 end = start + Vector3.up * 0.1f;
+                // Calculamos start y end usando fwd y right
+                Vector3 start = basePos + new Vector3(right.x, right.y, 0) * (size * 0.05f) + new Vector3(fwd.x, fwd.y, 0) * (i * offset);
+                Vector3 end = start + new Vector3(fwd.x, fwd.y, 0) * 0.1f;
                 Debug.DrawLine(start, end, c, 0.1f, false);
             }
         }
