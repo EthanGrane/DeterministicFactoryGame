@@ -84,7 +84,7 @@ public class BuildingManager : MonoBehaviour
         Tile[,] tiles = world.GetTiles();
 
         // Crear building una sola vez
-        Building building = new Building { block = block, rotation = rotation };
+        Building building = new Building { block = block, rotation = rotation, position = new Vector2Int(startX, startY) };
 
         // Crear lógica una sola vez si tiene
         if (block.logicType != null)
@@ -133,6 +133,8 @@ public class BuildingManager : MonoBehaviour
         tile.building = null; // Borra el building del tile
         worldRenderer.SetTileVisual(startX, startY, tile);
         buildingCollider.SetTile(new Vector3Int(startX, startY, 0), null);
+        
+        LogicManager.Instance.Unregister(building.logic);
     }
 
 }

@@ -15,6 +15,7 @@ public class LogicManager : MonoBehaviour
     public void Register(BuildingLogic logic)
     {
         logics.Add(logic);
+        logic.Initialize(logic.building.block);
     }
 
     public void Unregister(BuildingLogic logic)
@@ -26,6 +27,6 @@ public class LogicManager : MonoBehaviour
     {
         foreach (var logic in logics)
             if(logic.update)
-                logic.Update();
+                logic.Tick();
     }
 }

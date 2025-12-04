@@ -11,7 +11,7 @@ public abstract class BuildingLogic
     public virtual void OnPlaced() {}
 
     // Se llama cada frame
-    public virtual void Update() {}
+    public virtual void Tick() {}
 
     // Se llama al eliminar el edificio
     public virtual void OnRemoved() {}
