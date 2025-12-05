@@ -592,7 +592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37ada247ccd9e5f4f90bb7d9e4c46335, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minZoom: 5
+  minZoom: 3
   maxZoom: 20
   zoomSpeed: 10
   zoomSmooth: 10
@@ -866,6 +866,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1356213315694722064, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: poolSize
+      value: 250
+      objectReference: {fileID: 0}
     - target: {fileID: 2718986572770071281, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: m_Name
       value: World

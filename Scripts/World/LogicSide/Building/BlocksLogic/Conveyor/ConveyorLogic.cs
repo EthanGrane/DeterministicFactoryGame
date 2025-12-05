@@ -156,6 +156,14 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         }
     }
     
+    public float GetItemProgressNormalized(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= SLOT_COUNT) return 0f;
+        if (itemBuffer[slotIndex] == null) return 0f;
+    
+        return (float)itemProgress[slotIndex] / conveyorTickSpeed;
+    }
+    
     public Vector2Int BackFromRotation(int rotation)
     {
         switch (rotation)
