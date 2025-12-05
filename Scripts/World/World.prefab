@@ -34,6 +34,7 @@ Transform:
   - {fileID: 7150460528024141511}
   - {fileID: 4767566117584977309}
   - {fileID: 6005942506228220095}
+  - {fileID: 8206143996277019787}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2176555529727829845
@@ -308,7 +309,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingCollider: {fileID: 4186683192524037243}
   colliderTile: {fileID: 11400000, guid: c7bc9d436adb54d4399101720bb03007, type: 2}
-  testBlock: {fileID: 11400000, guid: b3595c721fa86c848b9c31a9a6d75d66, type: 2}
+  blocks:
+  - {fileID: 11400000, guid: a03df80d0198eab4a939281645db4622, type: 2}
+  - {fileID: 11400000, guid: e4b7106a75f4ccd44bff3a8026804042, type: 2}
+  - {fileID: 11400000, guid: 12f07d032124fea408895fe864539d04, type: 2}
+  selectedBlock: {fileID: 0}
   rotation: 0
 --- !u!1 &7998693005616691529
 GameObject:
@@ -610,6 +615,52 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
+--- !u!1 &8385395199036751889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8206143996277019787}
+  - component: {fileID: 1356213315694722064}
+  m_Layer: 0
+  m_Name: ConveyorRenderer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8206143996277019787
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8385395199036751889}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9190538370794383919}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1356213315694722064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8385395199036751889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1eafa42ea6faf41b166a818a51e336, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemPrefab: {fileID: 8636566822108149313, guid: ecdb5ca2787a3e040bff39cc9ee9eb19, type: 3}
+  poolSize: 500
 --- !u!1 &8480171344429130388
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,18 +2,18 @@ using UnityEngine;
 
 public class ConveyorLogic : BuildingLogic, IItemAcceptor
 {
-    private int conveyorTickSpeed;
-    private Item[] itemBuffer;
-    private int[] itemProgress;  // Progreso individual de cada item (0 a conveyorTickSpeed)
+    public int conveyorTickSpeed;
+    public  Item[] itemBuffer;
+    public int[] itemProgress;  // Progreso individual de cada item (0 a conveyorTickSpeed)
     
-    const int slotCount = 4; // Mindustry usa 4 slots
+    public static int SLOT_COUNT = 3;
 
     public override void Initialize(Block block)
     {
         var conveyor = (ConveyorBlock)block;
         conveyorTickSpeed = conveyor.ticksToMoveConveyorItem;
-        itemBuffer = new Item[slotCount];
-        itemProgress = new int[slotCount];
+        itemBuffer = new Item[SLOT_COUNT];
+        itemProgress = new int[SLOT_COUNT];
     }
 
     public override void Tick()
@@ -21,7 +21,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         DrawDebug();
         
         // Cada item avanza independientemente
-        for (int i = 0; i < slotCount; i++)
+        for (int i = 0; i < SLOT_COUNT; i++)
         {
             if (itemBuffer[i] != null)
             {
@@ -33,15 +33,17 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         PullFromInventoryBehind();
     }
 
+    
     private void DrawDebug()
     {
+        /*
         Vector2Int fwd = ForwardFromRotation(building.rotation);
         Vector2Int right = new Vector2Int(-fwd.y, fwd.x); // Vector perpendicular a fwd
 
         Vector3 basePos = new Vector3(building.position.x + 0.5f, building.position.y + 0.5f, 0);
-        float offset = 1f / slotCount;
+        float offset = 1f / SLOT_COUNT;
 
-        for (int i = 0; i < slotCount; i++)
+        for (int i = 0; i < SLOT_COUNT; i++)
         {
             // Mostrar progreso con color gradual
             Color c = itemBuffer[i] == null ? Color.red : Color.green;
@@ -54,12 +56,13 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
                 Debug.DrawLine(start, end, c, 0.1f, false);
             }
         }
+        */
     }
 
     private void MoveItems()
     {
         // CLAVE: Procesar de atrás hacia adelante para evitar procesar el mismo item dos veces
-        for (int i = slotCount - 1; i >= 0; i--)
+        for (int i = SLOT_COUNT - 1; i >= 0; i--)
         {
             if (itemBuffer[i] == null) continue;
             
@@ -69,13 +72,13 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
             bool moved = false;
             
             // PRIORIDAD 1: Intentar salir al siguiente building (solo desde el último slot)
-            if (i == slotCount - 1)
+            if (i == SLOT_COUNT - 1)
             {
                 moved = TryOutputToNextBuilding(i);
             }
             
             // PRIORIDAD 2: Si no salió (o no está en el último slot), mover al siguiente slot interno
-            if (!moved && i < slotCount - 1)
+            if (!moved && i < SLOT_COUNT - 1)
             {
                 moved = TryMoveToNextSlot(i);
             }
@@ -153,7 +156,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         }
     }
     
-    Vector2Int BackFromRotation(int rotation)
+    public Vector2Int BackFromRotation(int rotation)
     {
         switch (rotation)
         {
@@ -165,7 +168,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         }
     }
 
-    Vector2Int ForwardFromRotation(int rotation = 0)
+    public Vector2Int ForwardFromRotation(int rotation = 0)
     {
         switch (rotation)
         {

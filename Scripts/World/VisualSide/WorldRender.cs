@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -27,7 +28,7 @@ public class WorldRenderer : MonoBehaviour
         world = World.Instance;
         RenderAll();
     }
-
+    
     private void RenderAll()
     {
         var tiles = world.GetTiles();
@@ -59,4 +60,5 @@ public class WorldRenderer : MonoBehaviour
             buildingTilemap.SetTransformMatrix(pos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, tile.building.rotation * -90)));
         }    
     }
+    
 }
