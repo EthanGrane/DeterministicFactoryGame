@@ -7,4 +7,6 @@ public class TerrainSO : ScriptableObject
     public string terrainName;
     public bool solid;
     public TileBase sprite;
+    [Header("Pathfinding")]
+    public int movementCost = 1;
 }

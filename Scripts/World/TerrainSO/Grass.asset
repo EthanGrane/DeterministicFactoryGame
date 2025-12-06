@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6edc08e7071c5241b4b0b0b5e46efd5, type: 3}
+  m_Name: Grass
+  m_EditorClassIdentifier: 
+  terrainName: Grass
+  solid: 0
+  sprite: {fileID: 11400000, guid: 6e77ee900a2f1c646ac1cebb1796c2d7, type: 2}
+  movementCost: 1

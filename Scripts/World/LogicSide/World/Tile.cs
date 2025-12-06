@@ -3,7 +3,7 @@ using UnityEngine;
 public class Tile
 {
     public Vector2Int position;
-    public TerrainSO TerrainSo;
+    public TerrainSO terrainSO;
     public Building building; // Null = any building on this tile
     
     public int x { get { return position.x; } }
@@ -12,7 +12,7 @@ public class Tile
     public Tile(Vector2Int position, TerrainSO terrainSo, Building building)
     {
         this.position = position;
-        this.TerrainSo = terrainSo;
+        this.terrainSO = terrainSo;
         this.building = building;
     }
 }

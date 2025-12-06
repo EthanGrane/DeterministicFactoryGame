@@ -8,6 +8,8 @@ public class Block : ScriptableObject
     public int size = 1;
     public bool solid;
     public TileBase sprite;
+    [Space]
+    public float blockHealth = 100;
     
     public System.Type logicType;
 }

@@ -88,7 +88,7 @@ public class BuildingManager : MonoBehaviour
                     return false;
 
                 Tile tile = tiles[tx, ty];
-                if (tile == null || tile.TerrainSo.solid || tile.building != null)
+                if (tile == null || tile.terrainSO.solid || tile.building != null)
                     return false;
             }
         }
@@ -134,8 +134,10 @@ public class BuildingManager : MonoBehaviour
                 tile.building = building;
                 worldRenderer.SetTileVisual(tx, ty, tile);
 
+                /*
                 if (block.solid)
                     buildingCollider.SetTile(new Vector3Int(tx, ty, 0), colliderTile);
+                    */
             }
         }
 

@@ -5,13 +5,14 @@ using UnityEngine.Tilemaps;
 public class World : MonoBehaviour
 {
     public static World Instance { get; private set; }
-    public const int WorldSize = 128;
+    public const int WorldSize = 82;
     private Tile[,] tiles;
     
     public TerrainSO[] terrains;
-    private Dictionary<string, TerrainSO> terrainByName;
+    private Dictionary<TileBase, TerrainSO> terrainByTileBase;
 
     public TileBase colliderTile;
+    public Tilemap terrainTilemap;
     public Tilemap terrainCollider;
     public Tilemap buildingCollider;
 
@@ -29,10 +30,10 @@ public class World : MonoBehaviour
         #endregion
 
         // Terrain Dictionary
-        terrainByName = new Dictionary<string, TerrainSO>();
+        terrainByTileBase = new Dictionary<TileBase, TerrainSO>();
         foreach (var t in terrains)
         {
-            terrainByName[t.terrainName] = t;
+            terrainByTileBase[t.sprite] = t;
         }
         
         GenerateWorld();
@@ -41,25 +42,28 @@ public class World : MonoBehaviour
     private void GenerateWorld()
     {
         tiles = new Tile[WorldSize, WorldSize];
-        const int border = 15;
 
         for (int x = 0; x < WorldSize; x++)
         {
             for (int y = 0; y < WorldSize; y++)
             {
-                TerrainSO terrainSo =
-                    x <= border || y <= border || x >= WorldSize - border || y >= WorldSize - border
-                        ? terrainByName["Stone"]
-                        : terrainByName["Dirt"];
-
+                TerrainSO terrainSo = terrainByTileBase[terrainTilemap.GetTile(new Vector3Int(x,y,0))];
+                
                 tiles[x, y] = new Tile(new Vector2Int(x, y), terrainSo, null);
 
                 // Set Terrain Colliders
-                if (terrainSo.solid)
-                    terrainCollider.SetTile(new Vector3Int(x, y, 0), colliderTile);
+                if (terrainSo != null)
+                {
+                    if (terrainSo.solid)
+                        terrainCollider.SetTile(new Vector3Int(x, y, 0), colliderTile);
+                    else
+                        terrainCollider.SetTile(new Vector3Int(x, y, 0), null);   
+                }
                 else
-                    terrainCollider.SetTile(new Vector3Int(x, y, 0), null);
-
+                {
+                    Debug.Log("NULL on x:{x} y:{y} postiion");
+                    Debug.Break();
+                }
             }
         }
     }
@@ -67,4 +71,10 @@ public class World : MonoBehaviour
     public Tile[,] GetTiles() => tiles;
 
     public Tile GetTile(int x, int y) => tiles[x, y];
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireCube(WorldSize * Vector3.one * 0.5f, WorldSize * Vector3.one);
+    }
 }

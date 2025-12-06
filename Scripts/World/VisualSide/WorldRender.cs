@@ -47,7 +47,7 @@ public class WorldRenderer : MonoBehaviour
         Vector3Int pos = new Vector3Int(x, y, 0);
 
         //Terrain Visual
-        terrainTilemap.SetTile(pos, tile.TerrainSo.sprite);
+        terrainTilemap.SetTile(pos, tile.terrainSO.sprite);
 
         // Building Visual
         if (tile.building == null)
