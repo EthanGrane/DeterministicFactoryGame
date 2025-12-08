@@ -30,6 +30,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         }
         
         MoveItems();
+        TryCollectFromNearbyProviders();
         PullFromInventoryBehind();
     }
 
@@ -132,6 +133,48 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         return false;
     }
     
+    void TryCollectFromNearbyProviders()
+    {
+        // No recoger si el primer slot está lleno
+        if (itemBuffer[0] != null)
+            return;
+
+        Vector2Int fwd = ForwardFromRotation(building.rotation);
+        Vector2Int right = new Vector2Int(-fwd.y, fwd.x);
+        Vector2Int left = -right;
+
+        Vector2Int[] dirs = { right, left };
+
+        foreach (var dir in dirs)
+        {
+            Vector2Int pos = building.position + dir;
+            Building b = World.Instance.GetBuilding(pos);
+
+            if (b == null) continue;
+
+            if (b.logic is IItemProvider provider)
+            {
+                // IMPORTANTE: solo extraer si hay hueco
+                if (itemBuffer[0] != null)
+                    return;
+
+                Item extracted = provider.ExtractFirst();
+                if (extracted != null)
+                {
+                    itemBuffer[0] = extracted;
+                    itemProgress[0] = 0;
+                    return;
+                }
+            }
+        }
+    }
+
+    private void InsertItemOnBelt(Item item)
+    {
+        itemBuffer[0] = item;
+        itemProgress[0] = 0;
+    }
+
     private void PullFromInventoryBehind()
     {
         // Solo intentar si el primer slot está vacío
@@ -192,7 +235,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
                 return Vector2Int.up;
         }
     }
-
+    
     public bool CanAccept(Item item)
     {
         // Solo puede aceptar si hay espacio en el primer slot

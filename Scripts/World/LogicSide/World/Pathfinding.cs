@@ -40,6 +40,8 @@ public class Pathfinding : MonoBehaviour
     {
         if (!showDebug) return;
 
+        if(!Input.GetKey(KeyCode.LeftShift)) return;
+        
         // Click izquierdo (botón 0) - Punto A (Start)
         if (Input.GetMouseButtonDown(0))
         {

@@ -71,7 +71,11 @@ public class World : MonoBehaviour
     public Tile[,] GetTiles() => tiles;
 
     public Tile GetTile(int x, int y) => tiles[x, y];
-
+    public Tile GetTile(Vector2Int pos) => GetTile(pos.x, pos.y);
+    
+    public Building GetBuilding(int x, int y) => GetTile(x, y).building;
+    public Building GetBuilding(Vector2Int pos) => GetTile(pos).building;
+    
     void OnDrawGizmos()
     {
         Gizmos.color = Color.white;
