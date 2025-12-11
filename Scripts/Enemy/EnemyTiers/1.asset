@@ -15,4 +15,4 @@ MonoBehaviour:
   tierName: UNUSED
   sprite: {fileID: -2413806693520163455, guid: 86af2dcd30e119d4f889dc529a5eec6f, type: 3}
   color: {r: 1, g: 0, b: 0, a: 0}
-  moveSpeed: 0.1
+  moveSpeed: 1

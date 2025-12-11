@@ -4,6 +4,7 @@ public class PlayerProjectile : MonoBehaviour
 {
     public float speed;
     public float remainingRange;
+    public float collisionRadius = .33f;
     
     void Update()
     {
@@ -12,7 +13,7 @@ public class PlayerProjectile : MonoBehaviour
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 direction = mousePos - (Vector2)transform.position;
             direction = direction.normalized;
-            Projectile projectile = new Projectile(transform.position, direction, speed, .25f, remainingRange);
+            Projectile projectile = new Projectile(transform.position, direction, speed, collisionRadius, remainingRange);
             ProjectileManager.instance.RegisterProjectile(projectile);
         }
     }

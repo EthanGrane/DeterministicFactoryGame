@@ -4,6 +4,7 @@ public class Enemy : MonoBehaviour
 {
     public EnemyTier currentTier;
     public float moveSpeed = 2f;
+    public float collisionRadius = 0.5f;
     private bool isAlive = true;
 
     private void Start()
