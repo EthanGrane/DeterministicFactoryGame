@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd8eef5524ab4d17ac8ebc879af0906a, type: 3}
   m_Name: TurretBlock
   m_EditorClassIdentifier: 
-  blockName: 
+  blockName: Cannon Turret
   size: 1
   solid: 0
   sprite: {fileID: 11400000, guid: 6dfb166b987e2b347a5da6256f57d1f2, type: 2}
   blockHealth: 100
-  turretRange: 5
+  turretRange: 12
+  projectileRateOnTicks: 160
   projectileSpeed: 10
-  projectileLifetime: 1
+  projectileLifetime: 2
+  projectileCollisionRadius: 0.25
   projectileDamage: 1

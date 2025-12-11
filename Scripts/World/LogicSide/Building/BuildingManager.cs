@@ -1,8 +1,8 @@
 using System;
-using Unity.VisualScripting;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 public class BuildingManager : MonoBehaviour
 {
@@ -10,13 +10,13 @@ public class BuildingManager : MonoBehaviour
 
     public Tilemap buildingCollider;
     public TileBase colliderTile;
-
+    
+    public Block[] blocks;
+    public int rotation = 0;
+    
     private World world;
     private WorldRenderer worldRenderer;
-
-    public Block[] blocks;
-    public Block selectedBlock;
-    public int rotation = 0;
+    Block selectedBlock = null;
     
     private void Awake()
     {
@@ -36,17 +36,29 @@ public class BuildingManager : MonoBehaviour
 
     private void Update()
     {
+        if (selectedBlock == null) return;
+    
         // Build
         if (Input.GetMouseButton(0))
         {
+
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
+
             Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int tilePos = worldRenderer.terrainTilemap.WorldToCell(mouseWorld);
-            Build(tilePos.x, tilePos.y, selectedBlock, rotation);
+
+
+            bool result = Build(tilePos.x, tilePos.y, selectedBlock, rotation);
+
         }
 
         // Remove
         if (Input.GetMouseButton(1))
         {
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
+            
             Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int tilePos = worldRenderer.terrainTilemap.WorldToCell(mouseWorld);
             RemoveBuilding(tilePos.x, tilePos.y);
@@ -59,15 +71,14 @@ public class BuildingManager : MonoBehaviour
             rotation %= 4;
         }
 
-        for (int i = 0; i < 10; i++)
-        {
-            if (Input.GetKeyDown((KeyCode)(48 + i)))
-            {
-                if (blocks.Length > i && blocks[i])
-                    selectedBlock = blocks[i];
-            }
-        }
+    }
 
+    public void SelectBlock(Block block)
+    {
+        if (blocks.Contains(block))
+        {
+            selectedBlock = block;
+        }
     }
 
     public bool CanBuild(int startX, int startY, Block block)
