@@ -18,8 +18,6 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
 
     public override void Tick()
     {
-        DrawDebug();
-        
         // Cada item avanza independientemente
         for (int i = 0; i < SLOT_COUNT; i++)
         {
@@ -33,33 +31,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         TryCollectFromNearbyProviders();
         PullFromInventoryBehind();
     }
-
     
-    private void DrawDebug()
-    {
-        /*
-        Vector2Int fwd = ForwardFromRotation(building.rotation);
-        Vector2Int right = new Vector2Int(-fwd.y, fwd.x); // Vector perpendicular a fwd
-
-        Vector3 basePos = new Vector3(building.position.x + 0.5f, building.position.y + 0.5f, 0);
-        float offset = 1f / SLOT_COUNT;
-
-        for (int i = 0; i < SLOT_COUNT; i++)
-        {
-            // Mostrar progreso con color gradual
-            Color c = itemBuffer[i] == null ? Color.red : Color.green;
-
-            for (int size = -1; size <= 1; size++)
-            {
-                // Calculamos start y end usando fwd y right
-                Vector3 start = basePos + new Vector3(right.x, right.y, 0) * (size * 0.05f) + new Vector3(fwd.x, fwd.y, 0) * (i * offset);
-                Vector3 end = start + new Vector3(fwd.x, fwd.y, 0) * 0.1f;
-                Debug.DrawLine(start, end, c, 0.1f, false);
-            }
-        }
-        */
-    }
-
     private void MoveItems()
     {
         // CLAVE: Procesar de atrás hacia adelante para evitar procesar el mismo item dos veces
@@ -124,7 +96,22 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         if (logic is IItemAcceptor acceptor)
         {
             if (logic is ConveyorLogic)
-                if((logic.building.rotation + 2) % 4 == building.rotation) return false;
+            {
+                // Si el proximo ItemAceptor es un conveyor y esta mirando a este conveyor, entonces no se movera
+                if ((logic.building.rotation + 2) % 4 == building.rotation) return false;
+
+                // Si el proximo ItemAceptor es un Conveyor el cual esta mirando a los laterales respecto al conveyor
+                // insertara los items a medio camino
+                ConveyorLogic conveyorLogic = logic as ConveyorLogic;
+                if (logic.building.rotation != building.rotation)
+                    if(conveyorLogic.TryToInsertFromSide(item))
+                    {
+                        itemBuffer[index] = null;
+                        return true;
+                    }   
+                    else
+                        return false;
+            }            
             
             if (acceptor.CanAccept(item) && acceptor.Insert(item))
             {
@@ -254,6 +241,22 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
             itemProgress[0] = 0; // reinicia el progreso
             return true;
         }
+        return false;
+    }
+
+    public bool TryToInsertFromSide(Item item)
+    {
+        if (CanAccept(item))
+        {
+            int index = 1;
+            if (itemBuffer[index] == null)
+            {
+                itemBuffer[index] = item;
+                itemProgress[index] = 15;
+                return true;
+            }
+        }
+        
         return false;
     }
 }
