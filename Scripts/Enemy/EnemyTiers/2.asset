@@ -16,3 +16,4 @@ MonoBehaviour:
   sprite: {fileID: -2413806693520163455, guid: 86af2dcd30e119d4f889dc529a5eec6f, type: 3}
   color: {r: 0, g: 0.75059557, b: 1, a: 0}
   moveSpeed: 1.25
+  tierIndex: 2

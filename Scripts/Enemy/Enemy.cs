@@ -1,17 +1,19 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Enemy : MonoBehaviour
 {
-    public EnemyTier currentTier;
+    public EnemyTierSO currentTierSo;
     public float moveSpeed = 2f;
     public float collisionRadius = 0.5f;
+    public int enemyWave = 0;
     private bool isAlive = true;
 
     private Vector2 moveDirection = Vector2.up;
 
     private void Start()
     {
-        EnemyManager.Instance.ApplyTier(this, currentTier);
+        EnemyManager.Instance.ApplyTier(this, currentTierSo);
     }
 
     private void Update()

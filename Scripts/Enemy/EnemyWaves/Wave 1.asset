@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 821e24f2b447aa748acc2c1ca3cc5b86, type: 3}
-  m_Name: 4
+  m_Script: {fileID: 11500000, guid: e554d67649886ff408adbaa078510a7d, type: 3}
+  m_Name: Wave 1
   m_EditorClassIdentifier: 
-  tierName: UNUSED
-  sprite: {fileID: -2413806693520163455, guid: 86af2dcd30e119d4f889dc529a5eec6f, type: 3}
-  color: {r: 0.105882354, g: 0.84313726, b: 0, a: 0}
-  moveSpeed: 3
-  tierIndex: 4
+  waves:
+  - enemy: {fileID: 11400000, guid: 70f98266b7133304db32d4aad5f1d3fd, type: 2}
+    quantity: 30
+    spawnDelay: 0

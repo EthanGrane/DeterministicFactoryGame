@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New enemy tier", menuName = "FACTORY/ENEMY/Enemy Tier")]
-public class EnemyTier : ScriptableObject
+public class EnemyTierSO : ScriptableObject
 {
     [Header("Tier Info")]
     public string tierName = "UNUSED";
@@ -12,4 +12,6 @@ public class EnemyTier : ScriptableObject
 
     [Header("Stats")]
     public float moveSpeed = 2f;
+    
+    [HideInInspector] public int tierIndex;
 }
