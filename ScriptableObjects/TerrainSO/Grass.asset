@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b6edc08e7071c5241b4b0b0b5e46efd5, type: 3}
-  m_Name: Stone
+  m_Name: Grass
   m_EditorClassIdentifier: 
-  terrainName: Stone
+  terrainName: Grass
   solid: 0
-  sprite: {fileID: 11400000, guid: 5cbce5446e14c2e438971c1656c3e84f, type: 2}
-  movementCost: 1
+  sprite: {fileID: 11400000, guid: 6e77ee900a2f1c646ac1cebb1796c2d7, type: 2}
+  movementCost: 10

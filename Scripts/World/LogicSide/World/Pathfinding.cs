@@ -17,6 +17,10 @@ public class Pathfinding : MonoBehaviour
     public bool canBreakObstacles = true;
     public float obstacleBreakCostMultiplier = 1f;
 
+    [Header("Movement Costs")]
+    public float straightCost = 1f;
+    public float diagonalCost = 0.7f; // ⬅ DIAGONAL MÁS BARATA
+
     [Header("Testing")]
     public bool runTests = false;
     public KeyCode testKey = KeyCode.T;
@@ -39,38 +43,25 @@ public class Pathfinding : MonoBehaviour
     private void Update()
     {
         if (!showDebug) return;
+        if (!Input.GetKey(KeyCode.LeftShift)) return;
 
-        if(!Input.GetKey(KeyCode.LeftShift)) return;
-        
-        // Click izquierdo (botón 0) - Punto A (Start)
         if (Input.GetMouseButtonDown(0))
         {
             Vector2Int? clickPos = GetMouseWorldPosition();
             if (clickPos.HasValue)
             {
                 pointA = clickPos.Value;
-                Debug.Log($"Punto A establecido en: {pointA}");
-                
-                if (pointB.HasValue)
-                {
-                    CalculatePath();
-                }
+                if (pointB.HasValue) CalculatePath();
             }
         }
 
-        // Click derecho (botón 1) - Punto B (End)
         if (Input.GetMouseButtonDown(1))
         {
             Vector2Int? clickPos = GetMouseWorldPosition();
             if (clickPos.HasValue)
             {
                 pointB = clickPos.Value;
-                Debug.Log($"Punto B establecido en: {pointB}");
-                
-                if (pointA.HasValue)
-                {
-                    CalculatePath();
-                }
+                if (pointA.HasValue) CalculatePath();
             }
         }
     }
@@ -81,176 +72,38 @@ public class Pathfinding : MonoBehaviour
         int x = Mathf.FloorToInt(mousePos.x);
         int y = Mathf.FloorToInt(mousePos.y);
 
-        if (IsValid(new Vector2Int(x, y)))
-        {
-            return new Vector2Int(x, y);
-        }
-
-        return null;
+        Vector2Int pos = new Vector2Int(x, y);
+        return IsValid(pos) ? pos : null;
     }
 
     private void CalculatePath()
     {
-        if (!pointA.HasValue || !pointB.HasValue)
-            return;
-
         currentPath = FindPath(pointA.Value, pointB.Value);
-
-        if (currentPath != null)
-        {
-            PrintPathDetails(currentPath, "CAMINO ENCONTRADO");
-        }
-        else
-        {
-            Debug.Log("No se encontró camino");
-            obstaclesToBreak = null;
-        }
-    }
-
-    private void PrintPathDetails(List<Vector2Int> path, string title)
-    {
-        float totalCost = 0f;
-        float terrainCost = 0f;
-        float obstacleCost = 0f;
-        obstaclesToBreak = new List<Vector2Int>();
-        
-        Tile[,] tiles = World.Instance.GetTiles();
-        
-        for (int i = 1; i < path.Count; i++)
-        {
-            Vector2Int pos = path[i];
-            Tile tile = tiles[pos.x, pos.y];
-            
-            // Coste de terreno
-            terrainCost += tile.terrainSO.movementCost;
-            
-            // Coste de obstáculos
-            if (tile.building != null && tile.building.block != null && tile.building.block.solid)
-            {
-                float breakCost = tile.building.block.blockHealth * obstacleBreakCostMultiplier;
-                obstacleCost += breakCost;
-                obstaclesToBreak.Add(pos);
-            }
-        }
-        
-        totalCost = terrainCost + obstacleCost;
-        
-        Debug.Log($"=== {title} ===");
-        Debug.Log($"Pasos totales: {path.Count}");
-        Debug.Log($"Coste terreno: {terrainCost:F2}");
-        Debug.Log($"Coste obstáculos: {obstacleCost:F2}");
-        Debug.Log($"Obstáculos a romper: {obstaclesToBreak.Count}");
-        Debug.Log($"COSTE TOTAL: {totalCost:F2}");
-    }
-
-    private void RunPathfindingTests()
-    {
-        Debug.Log("========================================");
-        Debug.Log("INICIANDO TESTS DE PATHFINDING");
-        Debug.Log("========================================");
-
-        // TEST 1: 100 tiles vs 1 obstáculo con vida 50
-        Test_LongPathVsObstacle();
-
-        // TEST 2: Comparar diferentes multiplicadores
-        Test_MultiplierComparison();
-
-        Debug.Log("========================================");
-        Debug.Log("TESTS COMPLETADOS");
-        Debug.Log("========================================");
-    }
-
-    private void Test_LongPathVsObstacle()
-    {
-        Debug.Log("\n--- TEST 1: 100 Tiles (coste 1) vs 1 Obstáculo (vida 50) ---");
-        
-        // Escenario teórico
-        float longPathCost = 100 * 1f; // 100 tiles con coste 1
-        float obstaclePathCost = 50 * obstacleBreakCostMultiplier; // 1 obstáculo con 50 vida
-        
-        Debug.Log($"Camino largo (100 tiles): {longPathCost}");
-        Debug.Log($"Romper obstáculo (50 vida × {obstacleBreakCostMultiplier}): {obstaclePathCost}");
-        
-        if (longPathCost < obstaclePathCost)
-        {
-            Debug.Log($"✓ RESULTADO: Es más barato rodear ({longPathCost} < {obstaclePathCost})");
-        }
-        else if (longPathCost > obstaclePathCost)
-        {
-            Debug.Log($"✓ RESULTADO: Es más barato romper ({obstaclePathCost} < {longPathCost})");
-        }
-        else
-        {
-            Debug.Log($"✓ RESULTADO: Ambos caminos cuestan igual ({longPathCost})");
-        }
-
-        // Si hay puntos A y B establecidos, probar con el mapa real
-        if (pointA.HasValue && pointB.HasValue)
-        {
-            Debug.Log("\n--- Probando en el mapa actual ---");
-            List<Vector2Int> path = FindPath(pointA.Value, pointB.Value);
-            if (path != null)
-            {
-                PrintPathDetails(path, "Camino calculado en mapa real");
-            }
-        }
-    }
-
-    private void Test_MultiplierComparison()
-    {
-        Debug.Log("\n--- TEST 2: Comparación de Multiplicadores ---");
-        
-        float obstacleHealth = 50f;
-        float[] multipliers = { 0.5f, 1f, 2f, 3f, 5f };
-        
-        Debug.Log($"Para un obstáculo con {obstacleHealth} de vida:");
-        foreach (float mult in multipliers)
-        {
-            float cost = obstacleHealth * mult;
-            Debug.Log($"  Multiplicador {mult}: Coste = {cost}");
-            
-            // Comparar con camino largo
-            if (cost < 100)
-                Debug.Log($"    → Más barato que 100 tiles");
-            else if (cost > 100)
-                Debug.Log($"    → Más caro que 100 tiles");
-            else
-                Debug.Log($"    → Igual que 100 tiles");
-        }
-
-        Debug.Log($"\nMultiplicador actual: {obstacleBreakCostMultiplier}");
+        obstaclesToBreak = currentPath != null ? new List<Vector2Int>() : null;
     }
 
     public List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
     {
         Tile[,] tiles = World.Instance.GetTiles();
-        
+
         if (!IsValid(start) || !IsValid(end))
             return null;
 
-        // Verificar que el tile de destino existe
         Tile endTile = tiles[end.x, end.y];
-        if (endTile == null || endTile.terrainSO == null)
-            return null;
-
-        // Si el terreno es sólido, no se puede llegar
-        if (endTile.terrainSO.solid)
+        if (endTile == null || endTile.terrainSO == null || endTile.terrainSO.solid)
             return null;
 
         List<Node> openList = new List<Node>();
         HashSet<Vector2Int> closedList = new HashSet<Vector2Int>();
 
-        Node startNode = new Node(start, null, 0, GetHeuristic(start, end));
-        openList.Add(startNode);
+        openList.Add(new Node(start, null, 0, GetHeuristic(start, end)));
 
         while (openList.Count > 0)
         {
             Node current = GetLowestFNode(openList);
-            
+
             if (current.position == end)
-            {
                 return ReconstructPath(current);
-            }
 
             openList.Remove(current);
             closedList.Add(current.position);
@@ -260,51 +113,38 @@ public class Pathfinding : MonoBehaviour
                 if (closedList.Contains(neighbor))
                     continue;
 
-                Tile neighborTile = tiles[neighbor.x, neighbor.y];
-                
-                // Verificar null
-                if (neighborTile == null || neighborTile.terrainSO == null)
+                Tile tile = tiles[neighbor.x, neighbor.y];
+                if (tile == null || tile.terrainSO == null || tile.terrainSO.solid)
                     continue;
 
-                // Si el terreno es sólido (agua, montañas), no se puede pasar
-                if (neighborTile.terrainSO.solid)
-                    continue;
+                bool isDiagonal =
+                    Mathf.Abs(neighbor.x - current.position.x) == 1 &&
+                    Mathf.Abs(neighbor.y - current.position.y) == 1;
 
-                // Calcular coste de movimiento
-                float movementCost = neighborTile.terrainSO.movementCost;
+                float movementCost = tile.terrainSO.movementCost;
+                movementCost *= isDiagonal ? diagonalCost : straightCost;
                 
-                // Añadir coste de romper obstáculo si existe (estilo Clash of Clans)
-                if (canBreakObstacles && 
-                    neighborTile.building != null && 
-                    neighborTile.building.block != null && 
-                    neighborTile.building.block.solid)
+
+                if (tile.building?.block != null && tile.building.block.solid)
                 {
-                    // El coste depende de la vida del obstáculo
-                    // Cuanta más vida, más costoso es romperlo
-                    movementCost += neighborTile.building.block.blockHealth * obstacleBreakCostMultiplier;
+                    if (!canBreakObstacles)
+                        continue;
+
+                    movementCost += tile.building.block.blockHealth * obstacleBreakCostMultiplier;
+                    obstaclesToBreak?.Add(neighbor);
                 }
-                else if (!canBreakObstacles && 
-                         neighborTile.building != null && 
-                         neighborTile.building.block != null && 
-                         neighborTile.building.block.solid)
-                {
-                    // Si no puede romper obstáculos, tratarlo como bloqueado
-                    continue;
-                }
-                
+
                 float newG = current.g + movementCost;
 
-                Node existingNode = openList.Find(n => n.position == neighbor);
-
-                if (existingNode == null)
+                Node existing = openList.Find(n => n.position == neighbor);
+                if (existing == null)
                 {
-                    Node newNode = new Node(neighbor, current, newG, GetHeuristic(neighbor, end));
-                    openList.Add(newNode);
+                    openList.Add(new Node(neighbor, current, newG, GetHeuristic(neighbor, end)));
                 }
-                else if (newG < existingNode.g)
+                else if (newG < existing.g)
                 {
-                    existingNode.g = newG;
-                    existingNode.parent = current;
+                    existing.g = newG;
+                    existing.parent = current;
                 }
             }
         }
@@ -314,55 +154,60 @@ public class Pathfinding : MonoBehaviour
 
     private bool IsValid(Vector2Int pos)
     {
-        return pos.x >= 0 && pos.x < World.WorldSize && 
+        return pos.x >= 0 && pos.x < World.WorldSize &&
                pos.y >= 0 && pos.y < World.WorldSize;
     }
 
     private List<Vector2Int> GetNeighbors(Vector2Int pos)
     {
         List<Vector2Int> neighbors = new List<Vector2Int>();
-        
-        Vector2Int[] directions = new Vector2Int[]
+
+        Vector2Int[] dirs =
         {
-            new Vector2Int(0, 1),   // Arriba
-            new Vector2Int(0, -1),  // Abajo
-            new Vector2Int(-1, 0),  // Izquierda
-            new Vector2Int(1, 0)    // Derecha
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1),
+            new Vector2Int(-1, 0),
+            new Vector2Int(1, 0),
+
+            new Vector2Int(1, 1),
+            new Vector2Int(1, -1),
+            new Vector2Int(-1, 1),
+            new Vector2Int(-1, -1)
         };
 
-        foreach (Vector2Int dir in directions)
+        foreach (Vector2Int d in dirs)
         {
-            Vector2Int neighbor = pos + dir;
-            if (IsValid(neighbor))
-            {
-                neighbors.Add(neighbor);
-            }
+            Vector2Int n = pos + d;
+            if (IsValid(n))
+                neighbors.Add(n);
         }
 
         return neighbors;
     }
 
+    // 🔥 Heurística OCTILE compatible con diagonales baratas
     private float GetHeuristic(Vector2Int a, Vector2Int b)
     {
-        // Distancia Manhattan
-        return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+        int dx = Mathf.Abs(a.x - b.x);
+        int dy = Mathf.Abs(a.y - b.y);
+
+        return straightCost * (dx + dy)
+             + (diagonalCost - 2f * straightCost) * Mathf.Min(dx, dy);
     }
 
     private Node GetLowestFNode(List<Node> list)
     {
-        Node lowest = list[0];
-        foreach (Node node in list)
-        {
-            if (node.f < lowest.f)
-                lowest = node;
-        }
-        return lowest;
+        Node best = list[0];
+        foreach (Node n in list)
+            if (n.f < best.f)
+                best = n;
+        return best;
     }
 
-    private List<Vector2Int> ReconstructPath(Node endNode)
+    private List<Vector2Int> ReconstructPath(Node end)
     {
         List<Vector2Int> path = new List<Vector2Int>();
-        Node current = endNode;
+        Node current = end;
 
         while (current != null)
         {
@@ -382,7 +227,12 @@ public class Pathfinding : MonoBehaviour
         if (pointA.HasValue)
         {
             Gizmos.color = startColor;
-            Vector3 posA = new Vector3(pointA.Value.x + 0.5f, pointA.Value.y + 0.5f, 0);
+            Vector3 posA = new Vector3(
+                pointA.Value.x + 0.5f,
+                pointA.Value.y + 0.5f,
+                0
+            );
+
             Gizmos.DrawSphere(posA, gizmoSize);
             Gizmos.DrawWireCube(posA, Vector3.one * 0.8f);
         }
@@ -391,7 +241,12 @@ public class Pathfinding : MonoBehaviour
         if (pointB.HasValue)
         {
             Gizmos.color = endColor;
-            Vector3 posB = new Vector3(pointB.Value.x + 0.5f, pointB.Value.y + 0.5f, 0);
+            Vector3 posB = new Vector3(
+                pointB.Value.x + 0.5f,
+                pointB.Value.y + 0.5f,
+                0
+            );
+
             Gizmos.DrawSphere(posB, gizmoSize);
             Gizmos.DrawWireCube(posB, Vector3.one * 0.8f);
         }
@@ -400,9 +255,15 @@ public class Pathfinding : MonoBehaviour
         if (obstaclesToBreak != null && obstaclesToBreak.Count > 0)
         {
             Gizmos.color = obstacleColor;
+
             foreach (Vector2Int pos in obstaclesToBreak)
             {
-                Vector3 worldPos = new Vector3(pos.x + 0.5f, pos.y + 0.5f, 0);
+                Vector3 worldPos = new Vector3(
+                    pos.x + 0.5f,
+                    pos.y + 0.5f,
+                    0
+                );
+
                 Gizmos.DrawWireCube(worldPos, Vector3.one * 0.9f);
                 Gizmos.DrawSphere(worldPos, gizmoSize * 0.5f);
             }
@@ -412,19 +273,34 @@ public class Pathfinding : MonoBehaviour
         if (currentPath != null && currentPath.Count > 0)
         {
             Gizmos.color = pathColor;
-            
-            // Dibujar esferas en cada punto del camino
+
+            // Esferas en cada punto del camino
             foreach (Vector2Int pos in currentPath)
             {
-                Vector3 worldPos = new Vector3(pos.x + 0.5f, pos.y + 0.5f, 0);
+                Vector3 worldPos = new Vector3(
+                    pos.x + 0.5f,
+                    pos.y + 0.5f,
+                    0
+                );
+
                 Gizmos.DrawSphere(worldPos, gizmoSize * 0.7f);
             }
 
-            // Dibujar líneas conectando el camino
+            // Líneas del camino
             for (int i = 0; i < currentPath.Count - 1; i++)
             {
-                Vector3 from = new Vector3(currentPath[i].x + 0.5f, currentPath[i].y + 0.5f, 0);
-                Vector3 to = new Vector3(currentPath[i + 1].x + 0.5f, currentPath[i + 1].y + 0.5f, 0);
+                Vector3 from = new Vector3(
+                    currentPath[i].x + 0.5f,
+                    currentPath[i].y + 0.5f,
+                    0
+                );
+
+                Vector3 to = new Vector3(
+                    currentPath[i + 1].x + 0.5f,
+                    currentPath[i + 1].y + 0.5f,
+                    0
+                );
+
                 Gizmos.DrawLine(from, to);
             }
         }
@@ -438,9 +314,9 @@ public class Pathfinding : MonoBehaviour
         public float h;
         public float f => g + h;
 
-        public Node(Vector2Int position, Node parent, float g, float h)
+        public Node(Vector2Int pos, Node parent, float g, float h)
         {
-            this.position = position;
+            position = pos;
             this.parent = parent;
             this.g = g;
             this.h = h;
