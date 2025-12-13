@@ -9,13 +9,20 @@ public class PlayerBasePoint : MonoBehaviour
     private void Start()
     {
         BuildingManager.Instance.Build(new Vector2Int((int)transform.position.x,(int)transform.position.y),playerBaseBlock);
+        Pathfinding.Instance.SetEndPoint(new Vector2Int((int)(transform.position.x + 1), (int)(transform.position.y + 1)));
+        Pathfinding.Instance.CalculatePath();
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.black;
-        Gizmos.DrawSphere(transform.position, 0.5f);
+        Gizmos.DrawWireSphere(transform.position, 0.5f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, 1f);
         Gizmos.color = Color.green;
-        Gizmos.DrawSphere(transform.position, 0.25f);
+        Gizmos.DrawWireSphere(transform.position, 1.25f);
+        
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, FindFirstObjectByType<EnemySpawnPoint>().transform.position);
     }
 }

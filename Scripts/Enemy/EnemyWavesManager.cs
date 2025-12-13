@@ -42,7 +42,6 @@ public class EnemyWavesManager : MonoBehaviour
         {
             Vector3 offsetPosition = Random.insideUnitSphere * 5;
             Enemy enemy = Instantiate(enemyPrefab,enemySpawnPosition.transform.position + offsetPosition, Quaternion.identity).GetComponent<Enemy>();
-            enemy.enemyWave = currentWave;
             EnemyManager.Instance.ApplyTier(enemy, waveSquad.enemy);
             
             yield return new WaitForSeconds(1f/waveSquad.quantity);

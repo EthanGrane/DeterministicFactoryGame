@@ -66,6 +66,9 @@ public class Pathfinding : MonoBehaviour
         }
     }
 
+    public void SetStartPoint(Vector2Int point) => pointA = point;
+    public void SetEndPoint(Vector2Int point) => pointB = point;
+    
     private Vector2Int? GetMouseWorldPosition()
     {
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -76,7 +79,7 @@ public class Pathfinding : MonoBehaviour
         return IsValid(pos) ? pos : null;
     }
 
-    private void CalculatePath()
+    public void CalculatePath()
     {
         currentPath = FindPath(pointA.Value, pointB.Value);
         obstaclesToBreak = currentPath != null ? new List<Vector2Int>() : null;
@@ -123,8 +126,11 @@ public class Pathfinding : MonoBehaviour
 
                 float movementCost = tile.terrainSO.movementCost;
                 movementCost *= isDiagonal ? diagonalCost : straightCost;
-                
 
+                // 🔹 COSTE ADICIONAL POR PROXIMIDAD A MUROS
+                movementCost += GetProximityToWallCost(neighbor, tiles);
+
+                // Si hay obstáculo rompible
                 if (tile.building?.block != null && tile.building.block.solid)
                 {
                     if (!canBreakObstacles)
@@ -147,10 +153,45 @@ public class Pathfinding : MonoBehaviour
                     existing.parent = current;
                 }
             }
+
         }
 
         return null;
     }
+    
+    private float GetProximityToWallCost(Vector2Int pos, Tile[,] tiles)
+    {
+        // Valores de coste por cercanía (distancia Manhattan)
+        int[] costs = { 5, 3, 2, 1 };
+        float extraCost = 0f;
+
+        for (int radius = 1; radius <= costs.Length; radius++)
+        {
+            for (int dx = -radius; dx <= radius; dx++)
+            {
+                for (int dy = -radius; dy <= radius; dy++)
+                {
+                    if (Mathf.Abs(dx) != radius && Mathf.Abs(dy) != radius)
+                        continue; // Solo borde del anillo
+
+                    Vector2Int check = new Vector2Int(pos.x + dx, pos.y + dy);
+                    if (!IsValid(check))
+                        continue;
+
+                    Tile t = tiles[check.x, check.y];
+                    if (t != null && t.terrainSO != null && t.terrainSO.solid)
+                    {
+                        extraCost += costs[radius - 1];
+                        // Una vez detectado un muro en este anillo, no seguir buscando en el mismo radio
+                        break;
+                    }
+                }
+            }
+        }
+
+        return extraCost;
+    }
+
 
     private bool IsValid(Vector2Int pos)
     {
@@ -185,7 +226,6 @@ public class Pathfinding : MonoBehaviour
         return neighbors;
     }
 
-    // 🔥 Heurística OCTILE compatible con diagonales baratas
     private float GetHeuristic(Vector2Int a, Vector2Int b)
     {
         int dx = Mathf.Abs(a.x - b.x);
@@ -219,6 +259,81 @@ public class Pathfinding : MonoBehaviour
         return path;
     }
 
+    public Vector3 GetNearestPos(Vector3 worldPos)
+    {
+        Vector2Int start = new Vector2Int(
+            Mathf.FloorToInt(worldPos.x),
+            Mathf.FloorToInt(worldPos.y)
+        );
+
+        Tile[,] tiles = World.Instance.GetTiles();
+
+        // Clamp por si viene fuera del mundo
+        start.x = Mathf.Clamp(start.x, 0, World.WorldSize - 1);
+        start.y = Mathf.Clamp(start.y, 0, World.WorldSize - 1);
+
+        // 1️⃣ Si el tile directo es válido, usarlo
+        if (IsNavigable(start, tiles))
+            return GridToWorld(start);
+
+        // 2️⃣ Buscar alrededor por anillos
+        int maxRadius = World.WorldSize; // seguro
+
+        for (int radius = 1; radius <= maxRadius; radius++)
+        {
+            for (int dx = -radius; dx <= radius; dx++)
+            {
+                for (int dy = -radius; dy <= radius; dy++)
+                {
+                    // Solo borde del anillo (optimización)
+                    if (Mathf.Abs(dx) != radius && Mathf.Abs(dy) != radius)
+                        continue;
+
+                    Vector2Int p = new Vector2Int(start.x + dx, start.y + dy);
+                    if (!IsValid(p)) continue;
+
+                    if (IsNavigable(p, tiles))
+                        return GridToWorld(p);
+                }
+            }
+        }
+
+        // 3️⃣ Fallback (no debería pasar)
+        return GridToWorld(start);
+    }
+
+    public Vector2Int? GetTargetNode()
+    {
+        return pointB;
+    }
+
+    private bool IsNavigable(Vector2Int pos, Tile[,] tiles)
+    {
+        Tile t = tiles[pos.x, pos.y];
+        if (t == null || t.terrainSO == null)
+            return false;
+
+        if (t.terrainSO.solid)
+            return false;
+
+        if (!canBreakObstacles &&
+            t.building?.block != null &&
+            t.building.block.solid)
+            return false;
+
+        return true;
+    }
+
+    private Vector3 GridToWorld(Vector2Int pos)
+    {
+        return new Vector3(
+            pos.x + 0.5f,
+            pos.y + 0.5f,
+            0f
+        );
+    }
+
+    
     private void OnDrawGizmos()
     {
         if (!showDebug) return;
