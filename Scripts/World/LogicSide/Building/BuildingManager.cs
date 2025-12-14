@@ -162,10 +162,6 @@ public class BuildingManager : MonoBehaviour
         }
         
         worldRenderer.SetTileVisual(startX, startY, tiles[startX,startY]);
-
-
-        if(building.block.solid)
-            EnemyManager.Instance.MarkPathDirtyAndUpdate();
         
         return true;
     }
@@ -204,9 +200,6 @@ public class BuildingManager : MonoBehaviour
         }
 
         LogicManager.Instance.Unregister(building.logic);
-        
-        if(building.block.solid)
-            EnemyManager.Instance.MarkPathDirtyAndUpdate();
         
         return true;
     }

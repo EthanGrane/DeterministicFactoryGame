@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class EnemyManager : MonoBehaviour
 {
@@ -10,20 +8,11 @@ public class EnemyManager : MonoBehaviour
 
     [Header("Tiers")]
     public EnemyTierSO[] orderedTiers;
-    
-    public List<Enemy> enemies;
-    
-    List<Vector2> enemyPath;
-    
-    // Events
-    public Action OnPathUpdated;
-    
+
+    public List<Enemy> enemies = new();
+
     public Action<Enemy> onEnemyDie;
     public Action onAllEnemiesDead;
-    
-    // Requst an path update
-    private bool pathDirty = true;
-    private bool requestUpdateOnNextTick = true;
 
     private void Awake()
     {
@@ -32,119 +21,81 @@ public class EnemyManager : MonoBehaviour
 
     private void Start()
     {
-        LogicManager.Instance.OnTick += RecalculatePathOnTick;
-        GetPath();
-    }
-    
-    /*
-     * Path Funcions
-     */
-    
-    public List<Vector2> GetPath()
-    {
-        if (!pathDirty && enemyPath != null)
-            return enemyPath;
-
-        RecalculatePath();
-        return enemyPath;
-    }
-    
-    public void MarkPathDirty()
-    {
-        pathDirty = true;
+        LogicManager.Instance.OnTick += RecalculateFlow;
+        RecalculateFlow();
     }
 
-    public void MarkPathDirtyAndUpdate()
+    private void RecalculateFlow()
     {
-        MarkPathDirty();
-        requestUpdateOnNextTick = true;
+        Pathfinding.Instance.BuildFlowField();
     }
-    
-    // Private
 
-    private void RecalculatePathOnTick()
+    public Vector2 GetFlowDirection(Vector2 worldPos)
     {
-        if(!requestUpdateOnNextTick && !pathDirty) return;
-        requestUpdateOnNextTick = false;
-        RecalculatePath();
+        return Pathfinding.Instance.GetDirection(worldPos);
     }
-    
-    private void RecalculatePath()
-    {
-        pathDirty = false;
 
-        List<Vector2Int> gridPath = Pathfinding.Instance.Calculate();
-        if (gridPath == null || gridPath.Count == 0)
-        {
-            enemyPath = null;
-            return;
-        }
+    /* =====================
+     * ENEMY LOGIC (igual que antes)
+     * ===================== */
 
-        enemyPath = new List<Vector2>(gridPath.Count);
-        foreach (var p in gridPath)
-            enemyPath.Add(new Vector2(p.x + 0.5f, p.y + 0.5f));
-        
-        OnPathUpdated?.Invoke();
-    }
-    
-    /*
-     *  Enemy Funcions
-     */
-    
-    // Obtiene el tier inmediatamente inferior
     public EnemyTierSO GetLowerTier(EnemyTierSO current)
     {
-        int index = System.Array.IndexOf(orderedTiers, current);
-
-        if (index > 0)
-            return orderedTiers[index - 1];
-
-        return null; // Red = no tiene inferior
+        int index = Array.IndexOf(orderedTiers, current);
+        return index > 0 ? orderedTiers[index - 1] : null;
     }
 
-    // Aplica sprite, color y velocidad
     public void ApplyTier(Enemy enemy, EnemyTierSO tierSo)
     {
         RegisterEnemy(enemy);
-        
+
         enemy.currentTierSo = tierSo;
         enemy.moveSpeed = tierSo.moveSpeed;
 
         SpriteRenderer sr = enemy.GetComponent<SpriteRenderer>();
         sr.sprite = tierSo.sprite;
-        Color color = tierSo.color;
-        color.a = 1;
-        sr.color = color;
+        Color c = tierSo.color;
+        c.a = 1;
+        sr.color = c;
     }
     
+    public Enemy[] GetEnemiesOnRadius(Vector2 center, float radius)
+    {
+        List<Enemy> enemiesDetected = new();
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (Vector2.Distance(center, enemies[i].transform.position) <= radius)
+                enemiesDetected.Add(enemies[i]);
+        }
+
+        return enemiesDetected.ToArray();
+    }
+
     public void RegisterEnemy(Enemy enemy)
     {
-        if(!enemies.Contains(enemy))
+        if (!enemies.Contains(enemy))
             enemies.Add(enemy);
     }
 
     public void UnregisterEnemy(Enemy enemy)
     {
-        if (enemies.Contains(enemy))
-        {
-            enemies.Remove(enemy);
-            onEnemyDie?.Invoke(enemy);
-            
-            if(enemies.Count == 0)
-                onAllEnemiesDead?.Invoke();
-        }    
+        if (!enemies.Contains(enemy)) return;
+
+        enemies.Remove(enemy);
+        onEnemyDie?.Invoke(enemy);
+
+        if (enemies.Count == 0)
+            onAllEnemiesDead?.Invoke();
     }
-    
+
     public void ProcessDamage(Enemy enemy, int dmg)
     {
         for (int i = 0; i < dmg; i++)
         {
             EnemyTierSO lower = GetLowerTier(enemy.currentTierSo);
-
             if (lower != null)
-            {
                 ApplyTier(enemy, lower);
-            }
             else
             {
                 UnregisterEnemy(enemy);
@@ -153,48 +104,4 @@ public class EnemyManager : MonoBehaviour
             }
         }
     }
-
-    public Enemy[] GetEnemiesOnRadius(Vector2 center, float radius)
-    {
-        List<Enemy> enemiesDetected = new List<Enemy>();
-        
-        for (int i = 0; i < enemies.Count; i++)
-        {
-            if(Vector2.Distance(center, enemies[i].transform.position) <= radius)
-            {
-                enemiesDetected.Add(enemies[i]);
-            }        
-        }
-
-        return enemiesDetected.ToArray();
-    }
-    
-    public Enemy[] GetAllEnemies() => enemies.ToArray();
-    
-    
-    #region EDITOR HELPER
-    #if UNITY_EDITOR
-    [ContextMenu("Sync Tiers to ScriptableObjects")]
-    private void SyncTiersToSO()
-    {
-        if (orderedTiers == null || orderedTiers.Length == 0)
-        {
-            Debug.LogWarning("No hay tiers en orderedTiers.");
-            return;
-        }
-
-        for (int i = 0; i < orderedTiers.Length; i++)
-        {
-            EnemyTierSO tier = orderedTiers[i];
-            if (tier == null) continue;
-
-            tier.tierIndex = i;
-            EditorUtility.SetDirty(tier);
-        }
-
-        AssetDatabase.SaveAssets();
-        Debug.Log("Tiers asignados correctamente a los ScriptableObjects.");
-    }
-    #endif
-    #endregion
 }

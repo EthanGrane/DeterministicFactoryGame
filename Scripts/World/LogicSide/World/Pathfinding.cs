@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,27 +5,27 @@ public class Pathfinding : MonoBehaviour
 {
     public static Pathfinding Instance { get; private set; }
 
-    [Header("Debug")]
-    public bool showDebug = true;
-    public Color pathColor = Color.green;
-    public Color startColor = Color.blue;
-    public Color endColor = Color.red;
-    public Color obstacleColor = Color.yellow;
-    public float gizmoSize = 0.3f;
-
     [Header("Pathfinding Settings")]
     public bool canBreakObstacles = true;
     public float obstacleBreakCostMultiplier = 1f;
 
     [Header("Movement Costs")]
     public float straightCost = 1f;
-    public float diagonalCost = 2f;
 
     private Vector2Int? start = null;
     private Vector2Int? end = null;
-    private List<Vector2Int> currentPath = null;
-    private List<Vector2Int> obstaclesToBreak = null;
-    
+
+    public FlowField CurrentFlow { get; private set; }
+
+    // Solo movimientos ortogonales
+    private static readonly Vector2Int[] Neighbors =
+    {
+        new Vector2Int(0,1),
+        new Vector2Int(0,-1),
+        new Vector2Int(-1,0),
+        new Vector2Int(1,0)
+    };
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -37,232 +36,173 @@ public class Pathfinding : MonoBehaviour
         Instance = this;
     }
 
-    // Public funcitons
-    public List<Vector2Int> Calculate()
+    /* =========================
+     * PUBLIC API
+     * ========================= */
+    public FlowField BuildFlowField()
     {
-        if (!start.HasValue)
-        {
-            Vector2 pos = FindFirstObjectByType<EnemySpawnPoint>().transform.position;
-            start = new Vector2Int((int)pos.x, (int)pos.y);
-        }
-        
-        if (!end.HasValue)
-        {
-            Vector2 pos = FindFirstObjectByType<PlayerBasePoint>().transform.position;
-            end = new Vector2Int((int)pos.x, (int)pos.y);
-        }
+        EnsureEndpoints();
 
-
-        return FindPath(start.Value, end.Value);
-    }
-    
-    // SET
-    public void SetStart(Vector2Int p) => start = p;
-    public void SetEnd(Vector2Int p)   => end = p;
-    
-    // GET
-    public Vector2Int? GetStart() => start;
-    public Vector2Int? GetEnd() => end;
-    
-    // Private funcitons
-    
-    private Vector2Int? GetMouseWorldPosition()
-    {
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        int x = Mathf.FloorToInt(mousePos.x);
-        int y = Mathf.FloorToInt(mousePos.y);
-
-        Vector2Int pos = new Vector2Int(x, y);
-        return IsValid(pos) ? pos : null;
-    }
-
-    private List<Vector2Int> FindPath(Vector2Int start, Vector2Int end)
-    {
+        int size = World.WorldSize;
         Tile[,] tiles = World.Instance.GetTiles();
+        if (tiles == null) return null;
 
-        if (!IsValid(start) || !IsValid(end))
-            return null;
+        FlowField field = new FlowField(size);
+        PriorityQueue<Vector2Int> open = new PriorityQueue<Vector2Int>();
+        Vector2Int goal = end.Value;
 
-        Tile endTile = tiles[end.x, end.y];
-        if (endTile == null || endTile.terrainSO == null || endTile.terrainSO.solid)
-            return null;
+        field.cost[goal.x, goal.y] = 0f;
+        open.Enqueue(goal, 0f);
 
-        List<Node> openList = new List<Node>();
-        HashSet<Vector2Int> closedList = new HashSet<Vector2Int>();
+        // Costes progresivos para evitar que queden pegados a muros
+        float[] wallCosts = { 1000f, 5f, 2f, 1f, 0f };
 
-        openList.Add(new Node(start, null, 0, GetHeuristic(start, end)));
-
-        while (openList.Count > 0)
+        while (open.Count > 0)
         {
-            Node current = GetLowestFNode(openList);
+            Vector2Int current = open.Dequeue();
+            float currentCost = field.cost[current.x, current.y];
 
-            if (current.position == end)
-                return ReconstructPath(current);
-            
-            openList.Remove(current);
-            closedList.Add(current.position);
-
-            foreach (Vector2Int neighbor in GetNeighbors(current.position))
+            foreach (Vector2Int dir in Neighbors)
             {
-                if (closedList.Contains(neighbor))
-                    continue;
+                Vector2Int n = current + dir;
+                if (!IsValid(n)) continue;
 
-                Tile tile = tiles[neighbor.x, neighbor.y];
+                Tile tile = tiles[n.x, n.y];
                 if (tile == null || tile.terrainSO == null || tile.terrainSO.solid)
                     continue;
 
-                bool isDiagonal =
-                    Mathf.Abs(neighbor.x - current.position.x) == 1 &&
-                    Mathf.Abs(neighbor.y - current.position.y) == 1;
+                float moveCost = tile.terrainSO.movementCost * straightCost;
 
-                float movementCost = tile.terrainSO.movementCost;
-                movementCost *= isDiagonal ? diagonalCost : straightCost;
+                // Coste por proximidad a muros
+                byte dist = Pathfinding.Instance.wallDistance != null ? Pathfinding.Instance.wallDistance[n.x, n.y] : (byte)5;
+                moveCost += dist < wallCosts.Length ? wallCosts[dist] : 0f;
 
-                // 🔹 COSTE ADICIONAL POR PROXIMIDAD A MUROS
-                movementCost += GetProximityToWallCost(neighbor, tiles);
-
-                // Si hay obstáculo rompible
+                // Obstáculo rompible
                 if (tile.building?.block != null && tile.building.block.solid)
                 {
-                    if (!canBreakObstacles)
-                        continue;
-
-                    movementCost += tile.building.block.blockHealth * obstacleBreakCostMultiplier;
-                    obstaclesToBreak?.Add(neighbor);
+                    if (!canBreakObstacles) continue;
+                    moveCost += tile.building.block.blockHealth * obstacleBreakCostMultiplier;
                 }
 
-                float newG = current.g + movementCost;
+                float newCost = currentCost + moveCost;
 
-                Node existing = openList.Find(n => n.position == neighbor);
-                if (existing == null)
+                if (newCost < field.cost[n.x, n.y])
                 {
-                    openList.Add(new Node(neighbor, current, newG, GetHeuristic(neighbor, end)));
-                }
-                else if (newG < existing.g)
-                {
-                    existing.g = newG;
-                    existing.parent = current;
+                    field.cost[n.x, n.y] = newCost;
+                    open.Enqueue(n, newCost);
                 }
             }
-
         }
 
-        return null;
+        BuildDirectionField(field);
+        CurrentFlow = field;
+        return field;
     }
-    
-    private float GetProximityToWallCost(Vector2Int pos, Tile[,] tiles)
-    {
-        // Valores de coste por cercanía (distancia Manhattan)
-        int[] costs = { 5, 3, 2, 1 };
-        float extraCost = 0f;
 
-        for (int radius = 1; radius <= costs.Length; radius++)
+    public Vector2 GetDirection(Vector2 worldPos)
+    {
+        if (CurrentFlow == null) return Vector2.zero;
+
+        int x = Mathf.FloorToInt(worldPos.x);
+        int y = Mathf.FloorToInt(worldPos.y);
+
+        if (!IsValid(new Vector2Int(x, y))) return Vector2.zero;
+
+        return CurrentFlow.direction[x, y];
+    }
+
+    public void SetStart(Vector2Int p) => start = p;
+    public void SetEnd(Vector2Int p) => end = p;
+
+    /* =========================
+     * INTERNAL
+     * ========================= */
+    private void BuildDirectionField(FlowField field)
+    {
+        for (int x = 0; x < field.size; x++)
+        for (int y = 0; y < field.size; y++)
         {
-            for (int dx = -radius; dx <= radius; dx++)
+            float best = field.cost[x, y];
+            Vector2 bestDir = Vector2.zero;
+
+            foreach (Vector2Int dir in Neighbors)
             {
-                for (int dy = -radius; dy <= radius; dy++)
+                Vector2Int n = new Vector2Int(x + dir.x, y + dir.y);
+                if (!IsValid(n)) continue;
+
+                float c = field.cost[n.x, n.y];
+                if (c < best)
                 {
-                    if (Mathf.Abs(dx) != radius && Mathf.Abs(dy) != radius)
-                        continue; // Solo borde del anillo
-
-                    Vector2Int check = new Vector2Int(pos.x + dx, pos.y + dy);
-                    if (!IsValid(check))
-                        continue;
-
-                    Tile t = tiles[check.x, check.y];
-                    if (t != null && t.terrainSO != null && t.terrainSO.solid)
-                    {
-                        extraCost += costs[radius - 1];
-                        // Una vez detectado un muro en este anillo, no seguir buscando en el mismo radio
-                        break;
-                    }
+                    best = c;
+                    bestDir = new Vector2(dir.x, dir.y).normalized;
                 }
+            }
+
+            field.direction[x, y] = bestDir;
+        }
+    }
+
+    private void EnsureEndpoints()
+    {
+        if (!start.HasValue)
+        {
+            var spawn = FindFirstObjectByType<EnemySpawnPoint>();
+            if (spawn != null) start = new Vector2Int((int)spawn.transform.position.x, (int)spawn.transform.position.y);
+        }
+        if (!end.HasValue)
+        {
+            var basePoint = FindFirstObjectByType<PlayerBasePoint>();
+            if (basePoint != null) end = new Vector2Int((int)basePoint.transform.position.x, (int)basePoint.transform.position.y);
+        }
+    }
+
+    private bool IsValid(Vector2Int p) => p.x >= 0 && p.x < World.WorldSize && p.y >= 0 && p.y < World.WorldSize;
+
+    public byte[,] wallDistance; // Expuesto para costes progresivos
+}
+
+public class FlowField
+{
+    public readonly int size;
+    public readonly float[,] cost;
+    public readonly Vector2[,] direction;
+
+    public FlowField(int size)
+    {
+        this.size = size;
+        cost = new float[size, size];
+        direction = new Vector2[size, size];
+
+        for (int x = 0; x < size; x++)
+        for (int y = 0; y < size; y++)
+            cost[x, y] = float.MaxValue;
+    }
+}
+
+public class PriorityQueue<T>
+{
+    private readonly List<(T item, float priority)> elements = new();
+
+    public int Count => elements.Count;
+
+    public void Enqueue(T item, float priority) => elements.Add((item, priority));
+
+    public T Dequeue()
+    {
+        int bestIndex = 0;
+        float bestPriority = elements[0].priority;
+
+        for (int i = 1; i < elements.Count; i++)
+        {
+            if (elements[i].priority < bestPriority)
+            {
+                bestPriority = elements[i].priority;
+                bestIndex = i;
             }
         }
 
-        return extraCost;
-    }
-    
-    private bool IsValid(Vector2Int pos)
-    {
-        return pos.x >= 0 && pos.x < World.WorldSize &&
-               pos.y >= 0 && pos.y < World.WorldSize;
-    }
-
-    private List<Vector2Int> GetNeighbors(Vector2Int pos)
-    {
-        List<Vector2Int> neighbors = new List<Vector2Int>();
-
-        Vector2Int[] dirs =
-        {
-            new Vector2Int(0, 1),
-            new Vector2Int(0, -1),
-            new Vector2Int(-1, 0),
-            new Vector2Int(1, 0),
-
-            new Vector2Int(1, 1),
-            new Vector2Int(1, -1),
-            new Vector2Int(-1, 1),
-            new Vector2Int(-1, -1)
-        };
-
-        foreach (Vector2Int d in dirs)
-        {
-            Vector2Int n = pos + d;
-            if (IsValid(n))
-                neighbors.Add(n);
-        }
-
-        return neighbors;
-    }
-
-    private float GetHeuristic(Vector2Int a, Vector2Int b)
-    {
-        int dx = Mathf.Abs(a.x - b.x);
-        int dy = Mathf.Abs(a.y - b.y);
-
-        return straightCost * (dx + dy)
-             + (diagonalCost - 2f * straightCost) * Mathf.Min(dx, dy);
-    }
-
-    private Node GetLowestFNode(List<Node> list)
-    {
-        Node best = list[0];
-        foreach (Node n in list)
-            if (n.f < best.f)
-                best = n;
-        return best;
-    }
-
-    private List<Vector2Int> ReconstructPath(Node end)
-    {
-        List<Vector2Int> path = new List<Vector2Int>();
-        Node current = end;
-
-        while (current != null)
-        {
-            path.Add(current.position);
-            current = current.parent;
-        }
-
-        path.Reverse();
-        return path;
-    }
-    
-    private class Node
-    {
-        public Vector2Int position;
-        public Node parent;
-        public float g;
-        public float h;
-        public float f => g + h;
-
-        public Node(Vector2Int pos, Node parent, float g, float h)
-        {
-            position = pos;
-            this.parent = parent;
-            this.g = g;
-            this.h = h;
-        }
+        T item = elements[bestIndex].item;
+        elements.RemoveAt(bestIndex);
+        return item;
     }
 }

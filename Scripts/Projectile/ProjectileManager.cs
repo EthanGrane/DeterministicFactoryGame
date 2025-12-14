@@ -43,7 +43,7 @@ public class ProjectileManager : MonoBehaviour
 
     void CheckCollisionDetection()
     {
-        Enemy[] enemies = EnemyManager.Instance.GetAllEnemies();
+        Enemy[] enemies = EnemyManager.Instance.enemies.ToArray();
         if(enemies == null || enemies.Length == 0) return;
         
         for (int i = 0; i < enemies.Length; i++)
