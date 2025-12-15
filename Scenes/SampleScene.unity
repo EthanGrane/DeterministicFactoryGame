@@ -11232,6 +11232,46 @@ PrefabInstance:
       propertyPath: m_Tiles.Array.data[6723].second.m_TileColorIndex
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: waves.Array.size
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 36ffea8212393f7459fc4b015848bf52, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: ec594165a8e89a440987c121cb055e1b, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: ccfe94dbf77b3dc4b8c87ce6979bc9ad, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d0f2f787156c65c4aa18026c7babc1f5, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: e3ce5757ffa8447428f8f33c2d8aea86, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: cc390fa49ffc7a845a5fc8f72e2e30ca, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[6]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 4f6d5bec3731e2f44a8d80b23540dc58, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: c6e39349c282e5842a5dc5d98f23e490, type: 2}
+    - target: {fileID: 8536440791919073977, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'waves.Array.data[8]'
+      value: 
+      objectReference: {fileID: 11400000, guid: e9671abc41afb8c4faafd99f4798459b, type: 2}
     - target: {fileID: 9190538370794383919, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -11440,11 +11480,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8227731428310410535, guid: 5d34d3d1c5126084cb483f246fe746e3, type: 3}
       propertyPath: speed
-      value: 13
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 8227731428310410535, guid: 5d34d3d1c5126084cb483f246fe746e3, type: 3}
       propertyPath: remainingRange
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9054721502671451115, guid: 5d34d3d1c5126084cb483f246fe746e3, type: 3}
       propertyPath: m_SortingOrder

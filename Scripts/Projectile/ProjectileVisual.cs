@@ -40,8 +40,10 @@ public class ProjectileVisual : MonoBehaviour
         }
 
         Transform visual = freePool.Pop();
+        
         visual.gameObject.SetActive(true);
         visual.position = projectile.position;
+        visual.gameObject.GetComponentInChildren<TrailRenderer>().Clear();
 
         activeVisuals.Add(projectile, visual);
     }
@@ -53,7 +55,7 @@ public class ProjectileVisual : MonoBehaviour
 
         visual.gameObject.SetActive(false);
         freePool.Push(visual);
-
+        
         activeVisuals.Remove(projectile);
     }
     
