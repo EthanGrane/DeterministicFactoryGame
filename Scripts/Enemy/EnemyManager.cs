@@ -14,6 +14,8 @@ public class EnemyManager : MonoBehaviour
     public Action<Enemy> onEnemyDie;
     public Action onAllEnemiesDead;
 
+    private List<Vector2Int> path;
+    
     private void Awake()
     {
         Instance = this;
@@ -21,22 +23,26 @@ public class EnemyManager : MonoBehaviour
 
     private void Start()
     {
-        LogicManager.Instance.OnTick += RecalculateFlow;
         RecalculateFlow();
     }
 
     private void RecalculateFlow()
     {
-        Pathfinding.Instance.BuildFlowField();
+        path = new List<Vector2Int>();
+        path = PathfindingAStar.Instance.GetPathToGoal();
+        foreach (var enemy in enemies)
+        {
+            if (enemy == null) continue;
+
+            enemy.currentPath = path;
+            enemy.pathIndex = 0;
+        }
     }
 
-    public Vector2 GetFlowDirection(Vector2 worldPos)
-    {
-        return Pathfinding.Instance.GetDirection(worldPos);
-    }
-
+    public Vector2Int[] GetPath() => path.ToArray();
+    
     /* =====================
-     * ENEMY LOGIC (igual que antes)
+     * ENEMY LOGIC 
      * ===================== */
 
     public EnemyTierSO GetLowerTier(EnemyTierSO current)

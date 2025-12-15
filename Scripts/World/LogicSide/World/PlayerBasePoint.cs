@@ -21,6 +21,6 @@ public class PlayerBasePoint : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, 1.25f);
         
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, FindFirstObjectByType<EnemySpawnPoint>().transform.position);
+        Gizmos.DrawLine(transform.position, FindFirstObjectByType<EnemyBasePoint>().transform.position);
     }
 }

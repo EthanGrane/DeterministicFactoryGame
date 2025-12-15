@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-public class EnemySpawnPoint : MonoBehaviour
+public class EnemyBasePoint : MonoBehaviour
 {
     private void OnDrawGizmos()
     {

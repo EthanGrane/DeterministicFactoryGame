@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(EnemyManager))]
@@ -11,7 +12,7 @@ public class EnemyWavesManager : MonoBehaviour
     public GameObject enemyPrefab;
     public bool autoWave = true;
 
-    public EnemySpawnPoint enemySpawnPosition;
+    [FormerlySerializedAs("enemySpawnPosition")] public EnemyBasePoint enemyBasePosition;
     public int currentWave = 0;
 
     private void Start()
@@ -41,7 +42,7 @@ public class EnemyWavesManager : MonoBehaviour
     {
         for (int j = 0; j < waveSquad.quantity; j++)
         {
-            Enemy enemy = Instantiate(enemyPrefab,enemySpawnPosition.transform.position, Quaternion.identity).GetComponent<Enemy>();
+            Enemy enemy = Instantiate(enemyPrefab,enemyBasePosition.transform.position, Quaternion.identity).GetComponent<Enemy>();
             EnemyManager.Instance.ApplyTier(enemy, waveSquad.enemy);
             
             yield return new WaitForSeconds(0.15f);
