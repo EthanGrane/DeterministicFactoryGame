@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -24,14 +25,7 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         if (!isAlive) return;
-
-        // Si no hay camino, recalcular
-        if (currentPath == null || pathIndex >= currentPath.Count)
-        {
-            RecalculatePath();
-            if (currentPath == null || currentPath.Count == 0) return;
-        }
-
+        
         // Movimiento hacia el siguiente nodo del path
         Vector2 targetPos = currentPath[pathIndex];
         Vector2 dir = (targetPos - (Vector2)transform.position).normalized;
@@ -66,7 +60,7 @@ public class Enemy : MonoBehaviour
     {
         if (!isAlive) return;
 
-        currentPath = PathfindingAStar.Instance.GetPathToGoal();
+        currentPath = EnemyManager.Instance.GetPath().ToList();
         pathIndex = 0;
     }
 }

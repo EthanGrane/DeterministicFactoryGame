@@ -233,65 +233,6 @@ public class PathfindingAStar : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Actualiza la distancia a muros en una región específica (más eficiente para cambios locales)
-    /// </summary>
-    public void UpdateWallDistanceRegion(Vector2Int center, int radius)
-    {
-        if (wallDistance == null)
-        {
-            RebuildWallDistance();
-            return;
-        }
-
-        Tile[,] tiles = World.Instance.GetTiles();
-        Queue<Vector2Int> q = new();
-
-        // Resetear región y encontrar muros
-        int minX = Mathf.Max(0, center.x - radius);
-        int maxX = Mathf.Min(World.WorldSize - 1, center.x + radius);
-        int minY = Mathf.Max(0, center.y - radius);
-        int maxY = Mathf.Min(World.WorldSize - 1, center.y + radius);
-
-        for (int x = minX; x <= maxX; x++)
-        {
-            for (int y = minY; y <= maxY; y++)
-            {
-                if (tiles[x, y]?.terrainSO?.solid == true)
-                {
-                    wallDistance[x, y] = 0;
-                    q.Enqueue(new Vector2Int(x, y));
-                }
-                else
-                {
-                    wallDistance[x, y] = 255;
-                }
-            }
-        }
-
-        // BFS limitado
-        while (q.Count > 0)
-        {
-            Vector2Int p = q.Dequeue();
-            byte d = wallDistance[p.x, p.y];
-            if (d >= wallProximityDistance) continue;
-
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2Int n = p + Neighbors[i];
-                if (!IsValid(n)) continue;
-                if (n.x < minX || n.x > maxX || n.y < minY || n.y > maxY) continue;
-                
-                byte newDist = (byte)(d + 1);
-                if (wallDistance[n.x, n.y] > newDist)
-                {
-                    wallDistance[n.x, n.y] = newDist;
-                    q.Enqueue(n);
-                }
-            }
-        }
-    }
-
     // ========================= AUXILIARES =========================
     
     private float Heuristic(Vector2Int a, Vector2Int b)
@@ -319,7 +260,6 @@ public class PathfindingAStar : MonoBehaviour
         int dx = to.x - from.x;
         int dy = to.y - from.y;
 
-        // Verificar que los dos lados adyacentes no sean sólidos (evitar "corner cutting")
         Vector2Int sideA = new(from.x + dx, from.y);
         Vector2Int sideB = new(from.x, from.y + dy);
 
