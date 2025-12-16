@@ -28,7 +28,7 @@ public class ProjectileVisual : MonoBehaviour
         }
     }
 
-    public void RegisterProjectile(Projectile projectile)
+    public void RegisterProjectile(Projectile projectile, ProjectileSO projectileSO)
     {
         if (activeVisuals.ContainsKey(projectile))
             return;
@@ -49,9 +49,9 @@ public class ProjectileVisual : MonoBehaviour
         
         trail.Clear();
         
-        trail.endColor = projectile.color;
-        trail.startColor = projectile.color;
-        sprite.color = projectile.color;
+        trail.endColor = projectileSO.projectileColor;
+        trail.startColor = projectileSO.projectileColor;
+        sprite.color = projectileSO.projectileColor;
 
         visual.gameObject.transform.localScale = Vector3.one * projectile.collisionRadius;
         trail.startWidth = projectile.collisionRadius;

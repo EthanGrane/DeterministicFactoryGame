@@ -76,7 +76,7 @@ public class ProjectileManager : MonoBehaviour
     {
         Projectile p = new Projectile(pos, dir, data);
 
-        projectileVisual.RegisterProjectile(p);
+        projectileVisual.RegisterProjectile(p,data);
         projectiles.Add(p);
     }
     
