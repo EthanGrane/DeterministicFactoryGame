@@ -22,7 +22,7 @@ MonoBehaviour:
   turretRange: 9
   projectileRateOnTicks: 90
   projectileSpeed: 30
-  projectileLifetime: 2
+  projectileLifetime: 2.26
   projectileCollisionRadius: 0.25
   projectileDamage: 1
-  projectilePenetration: 1
+  projectilePenetration: 5
