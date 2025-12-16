@@ -1,15 +1,18 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class TurretLogic : BuildingLogic, IItemAcceptor
 {
-    public int projectileRateCount = 0;
-    int avaliableAmmo = 0;
+    int projectileRateCount = 0;
     int maxAmmo = 20;
+
+    readonly Queue<Item> ammoQueue = new();
 
     public override void Tick()
     {
-        if(avaliableAmmo == 0) return;
-        
+        if (ammoQueue.Count == 0) return;
+
         if (projectileRateCount > 0)
         {
             projectileRateCount--;
@@ -22,7 +25,6 @@ public class TurretLogic : BuildingLogic, IItemAcceptor
         Enemy[] enemies = EnemyManager.Instance.GetEnemiesOnRadius(pos, turretBlock.turretRange);
         if (enemies.Length == 0) return;
 
-        // Encontrar enemigo más cercano
         Enemy nearestEnemy = null;
         float nearestDistance = float.MaxValue;
 
@@ -38,47 +40,49 @@ public class TurretLogic : BuildingLogic, IItemAcceptor
 
         if (nearestEnemy == null) return;
 
-        // Calcular predicción
+        // 🔫 Consumir munición
+        Item ammoItem = ammoQueue.Dequeue();
+        ProjectileSO projectile = ammoItem.projectile;
+
+        if (projectile == null)
+            return;
+
         Vector2 enemyPos = nearestEnemy.GetPosition();
         Vector2 enemyVel = nearestEnemy.GetVelocity();
-        float travelTime = nearestDistance / turretBlock.projectileSpeed;
-        Vector2 predictedPos = enemyPos + enemyVel * travelTime;
 
-        // Calcular dirección normalizada
+        float travelTime = nearestDistance / projectile.speed;
+        Vector2 predictedPos = enemyPos + enemyVel * travelTime;
         Vector2 direction = (predictedPos - pos).normalized;
 
-        // Registrar proyectil
         projectileRateCount = turretBlock.projectileRateOnTicks;
-        ProjectileManager.instance.RegisterProjectile(
-            new Projectile(
-                pos,
-                direction,
-                turretBlock.projectileSpeed,
-                turretBlock.projectileCollisionRadius,
-                turretBlock.projectileLifetime,
-                turretBlock.projectileDamage,
-                turretBlock.projectilePenetration
-            ));
 
-        avaliableAmmo--;
+        ProjectileManager.instance.SpawnProjectile(
+            pos,
+            direction,
+            projectile
+        );
     }
+
+    // ================= IItemAcceptor =================
 
     public bool CanAccept(Item item)
     {
-        if (item.type == ItemType.Ammo && avaliableAmmo < maxAmmo)
-            return true;
-        
-        return false;
-    }
+        TurretBlock turretBlock = building.block as TurretBlock;
 
+        if (ammoQueue.Count >= maxAmmo)
+            return false;
+
+        if (!item.isAmmo || item.projectile == null)
+            return false;
+
+        return turretBlock.avaliableProjectiles.Contains(item.projectile);
+    }
     public bool Insert(Item item)
     {
-        if(CanAccept(item))
-        {
-            avaliableAmmo++;
-            return true;
-        }
-        
-        return false;
+        if (!CanAccept(item))
+            return false;
+
+        ammoQueue.Enqueue(item);
+        return true;
     }
 }

@@ -21,8 +21,6 @@ MonoBehaviour:
   CanBeRemovedByPlayer: 1
   turretRange: 9
   projectileRateOnTicks: 90
-  projectileSpeed: 30
-  projectileLifetime: 2.26
-  projectileCollisionRadius: 0.25
-  projectileDamage: 1
-  projectilePenetration: 5
+  avaliableProjectiles:
+  - {fileID: 11400000, guid: ba5170c7e79f4ff4880bd617556c3cd1, type: 2}
+  - {fileID: 11400000, guid: 0d89cdea9ee9c16408f702b56df63cc4, type: 2}

@@ -51,6 +51,8 @@ public class Enemy : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void TakeDamage(int damage) => EnemyManager.Instance.ProcessDamage(this, damage);
+    
     public Vector2 GetPosition() => transform.position;
     public Vector2 GetVelocity() => lastDir * moveSpeed;
 

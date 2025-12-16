@@ -11,7 +11,7 @@ public class FactoryBlock : Block<FactoryLogic>
     public Item output;
     public int outputAmount;
     
-    [FormerlySerializedAs("timeToCraft")] [Space] 
+    [Space] 
     public float timeToCraftOnTicks;
 
 }

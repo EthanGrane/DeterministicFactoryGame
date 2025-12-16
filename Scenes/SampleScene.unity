@@ -11535,6 +11535,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 8227731428310410535, guid: 5d34d3d1c5126084cb483f246fe746e3, type: 3}
+      propertyPath: projectile
+      value: 
+      objectReference: {fileID: 11400000, guid: abcaff023ddfeb049bc75744878f1a07, type: 2}
+    - target: {fileID: 8227731428310410535, guid: 5d34d3d1c5126084cb483f246fe746e3, type: 3}
       propertyPath: remainingRange
       value: 1
       objectReference: {fileID: 0}

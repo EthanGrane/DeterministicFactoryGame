@@ -95,9 +95,9 @@ public class EnemyManager : MonoBehaviour
             onAllEnemiesDead?.Invoke();
     }
 
-    public void ProcessDamage(Enemy enemy, Projectile projectile)
+    public void ProcessDamage(Enemy enemy, int damage)
     {
-        for (int i = 0; i < projectile.damage; i++)
+        for (int i = 0; i < damage; i++)
         {
             EnemyTierSO lower = GetLowerTier(enemy.currentTierSo);
             if (lower != null)
@@ -110,6 +110,8 @@ public class EnemyManager : MonoBehaviour
             }
         }
     }
+
+    public void ProcessDamage(Enemy enemy, Projectile projectile) => ProcessDamage(enemy, projectile.damage);
     
     public int GetEnemiesAliveCount() => enemies.Count;
 }

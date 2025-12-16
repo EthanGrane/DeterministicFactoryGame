@@ -51,9 +51,10 @@ public class ProjectileManager : MonoBehaviour
             for (int j = 0; j < projectiles.Count; j++)
             {
                 Enemy enemy = enemies[i];
-                Vector2 direction = projectiles[j].position - (Vector2)enemy.transform.position;
-                if (Vector2.Distance(enemy.transform.position + (Vector3)(direction * enemy.collisionRadius), projectiles[j].position) <= projectiles[j].collisionRadius)
-                {
+                Vector2 toProjectile = projectiles[j].position - (Vector2)enemy.transform.position;
+                float dist = toProjectile.magnitude;
+                if (dist <= enemy.collisionRadius + projectiles[j].collisionRadius)
+                { 
                     EnemyManager.Instance.ProcessDamage(enemy, projectiles[j]);
                     
                     projectiles[j].penetration--;
@@ -71,6 +72,14 @@ public class ProjectileManager : MonoBehaviour
         projectiles.Add(p);
     }
 
+    public void SpawnProjectile(Vector2 pos, Vector2 dir, ProjectileSO data)
+    {
+        Projectile p = new Projectile(pos, dir, data);
+
+        projectileVisual.RegisterProjectile(p);
+        projectiles.Add(p);
+    }
+    
     void OnDrawGizmos()
     {
         for (int i = 0; i < projectiles.Count; i++)
