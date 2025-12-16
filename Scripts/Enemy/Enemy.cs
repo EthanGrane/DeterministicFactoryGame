@@ -25,19 +25,24 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         if (!isAlive) return;
-        
-        // Movimiento hacia el siguiente nodo del path
+
+        if (currentPath == null || currentPath.Count == 0)
+            return;
+
+        if (pathIndex >= currentPath.Count)
+            return;
+
         Vector2 targetPos = currentPath[pathIndex];
         Vector2 dir = (targetPos - (Vector2)transform.position).normalized;
-        dir = Vector2.Lerp(lastDir, dir, 0.2f); // suavizado
+        dir = Vector2.Lerp(lastDir, dir, 0.2f);
         lastDir = dir;
 
         transform.Translate(dir * moveSpeed * Time.deltaTime, Space.World);
 
-        // Si llegamos al nodo, avanzar al siguiente
         if (Vector2.Distance(transform.position, targetPos) < 0.1f)
             pathIndex++;
     }
+
     public void DieExtern()
     {
         if (!isAlive) return;

@@ -1,15 +1,15 @@
 using UnityEngine;
 
-public class TurretLogic : BuildingLogic
+public class TurretLogic : BuildingLogic, IItemAcceptor
 {
     public int projectileRateCount = 0;
-    public override void Initialize(Block block)
-    {
-        base.Initialize(block);
-    }
+    int avaliableAmmo = 0;
+    int maxAmmo = 20;
 
     public override void Tick()
     {
+        if(avaliableAmmo == 0) return;
+        
         if (projectileRateCount > 0)
         {
             projectileRateCount--;
@@ -59,6 +59,26 @@ public class TurretLogic : BuildingLogic
                 turretBlock.projectileDamage,
                 turretBlock.projectilePenetration
             ));
+
+        avaliableAmmo--;
     }
 
- }
+    public bool CanAccept(Item item)
+    {
+        if (item.type == ItemType.Ammo && avaliableAmmo < maxAmmo)
+            return true;
+        
+        return false;
+    }
+
+    public bool Insert(Item item)
+    {
+        if(CanAccept(item))
+        {
+            avaliableAmmo++;
+            return true;
+        }
+        
+        return false;
+    }
+}

@@ -20,8 +20,9 @@ MonoBehaviour:
   solid: 1
   CanBeRemovedByPlayer: 1
   turretRange: 9
-  projectileRateOnTicks: 160
+  projectileRateOnTicks: 90
   projectileSpeed: 30
   projectileLifetime: 2
   projectileCollisionRadius: 0.25
   projectileDamage: 1
+  projectilePenetration: 1

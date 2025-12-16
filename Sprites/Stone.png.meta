@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 03956e634fe968148b74eb5bdd2b96c4
+guid: 93fecb7dc4fdcb444a467388e4712f5c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6803873404882588446
-    second: Conveyor_0
+      213: 8399011212269539787
+    second: Stone_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Conveyor_0
+      name: Stone_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e1311c230d63c6e50800000000000000
-      internalID: 6803873404882588446
+      spriteID: bc159db92384f8470800000000000000
+      internalID: 8399011212269539787
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Conveyor_0: 6803873404882588446
+      Stone_0: 8399011212269539787
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

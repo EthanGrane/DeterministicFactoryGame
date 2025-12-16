@@ -314,7 +314,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: blocks.Array.size
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: 'blocks.Array.data[0]'
@@ -343,7 +343,7 @@ PrefabInstance:
     - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: 'blocks.Array.data[6]'
       value: 
-      objectReference: {fileID: 11400000, guid: 705633d42f02a8c458e3d6a2d15e0082, type: 2}
+      objectReference: {fileID: 11400000, guid: 64086417b81cb7f4b894d8cf7c169495, type: 2}
     - target: {fileID: 3685945895045405006, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: wallProximityCost
       value: 15
