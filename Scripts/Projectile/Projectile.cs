@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Projectile
@@ -14,6 +15,9 @@ public class Projectile
 
     public bool isDead;
 
+    public HashSet<Enemy> hitEnemies = new();
+    public Color color;
+    
     public Projectile(Vector2 pos, Vector2 dir, ProjectileSO data)
     {
         position = pos;
@@ -26,5 +30,7 @@ public class Projectile
         damage = data.damage;
         penetration = data.penetration;
         isDead = false;
+        
+        color = data.projectileColor;
     }
 }

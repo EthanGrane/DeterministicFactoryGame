@@ -20,7 +20,7 @@ public class TurretLogic : BuildingLogic, IItemAcceptor
         }
 
         TurretBlock turretBlock = building.block as TurretBlock;
-        Vector2 pos = building.position;
+        Vector2 pos = building.position + Vector2.one * (building.block.size - 1);
 
         Enemy[] enemies = EnemyManager.Instance.GetEnemiesOnRadius(pos, turretBlock.turretRange);
         if (enemies.Length == 0) return;

@@ -11,5 +11,8 @@ public class ProjectileSO : ScriptableObject
     public float speed = 10f;
     public float lifetime = 1f;
     public float collisionRadius = 0.25f;
+    
+    [Header("Visuals")]
+    public Color projectileColor = Color.yellow;
 
 }

@@ -55,23 +55,23 @@ public class ProjectileManager : MonoBehaviour
                 float dist = toProjectile.magnitude;
                 if (dist <= enemy.collisionRadius + projectiles[j].collisionRadius)
                 { 
-                    EnemyManager.Instance.ProcessDamage(enemy, projectiles[j]);
+                    Projectile p = projectiles[j];
+
+                    if (p.hitEnemies.Contains(enemy))
+                        continue;
+                    p.hitEnemies.Add(enemy);
                     
-                    projectiles[j].penetration--;
+                    EnemyManager.Instance.ProcessDamage(enemy, p);
                     
-                    if(projectiles[j].penetration <= 0)
-                        projectiles[j].isDead = true;
+                    p.penetration--;
+                    
+                    if(p.penetration <= 0)
+                        p.isDead = true;
                 }            
             }
         }
     }
-
-    public void RegisterProjectile(Projectile p)
-    {
-        projectileVisual.RegisterProjectile(p);
-        projectiles.Add(p);
-    }
-
+    
     public void SpawnProjectile(Vector2 pos, Vector2 dir, ProjectileSO data)
     {
         Projectile p = new Projectile(pos, dir, data);

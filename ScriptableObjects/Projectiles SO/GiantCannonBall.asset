@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88dbfbdd4f7b41379f08108f71ea3226, type: 3}
-  m_Name: CannonBall
+  m_Name: GiantCannonBall
   m_EditorClassIdentifier: 
-  damage: 1
-  penetration: 5
-  speed: 17
+  damage: 3
+  penetration: 15
+  speed: 50
   lifetime: 1
-  collisionRadius: 0.33
+  collisionRadius: 2
+  projectileColor: {r: 0.34242612, g: 0.41189718, b: 0.4245283, a: 1}

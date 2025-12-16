@@ -19,4 +19,4 @@ MonoBehaviour:
   blockHealth: 100
   solid: 0
   CanBeRemovedByPlayer: 1
-  item: {fileID: 11400000, guid: fae9d50fde3c4d8449c5d71877cbdf4a, type: 2}
+  item: {fileID: 11400000, guid: 452466037bcb85847b706a4059d82ed6, type: 2}

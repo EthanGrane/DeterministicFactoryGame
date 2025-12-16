@@ -17,7 +17,8 @@ public class EnemyWavesManager : MonoBehaviour
     Coroutine enemyWavesCoroutine;
     bool isSpawningWave = false;
 
-
+    private float time = 0;
+    
     private void Awake()
     {
         enemyBasePosition = FindFirstObjectByType<EnemyBasePoint>();
@@ -29,6 +30,12 @@ public class EnemyWavesManager : MonoBehaviour
         enemyWavesCoroutine = StartCoroutine(StartWaveRound());
     }
 
+    [ContextMenu("Start Wave")]
+    public void StartWave()
+    {
+        time = 999;
+    }
+    
     void OnAllEnemiesDead()
     {
         if (isSpawningWave)
@@ -47,7 +54,12 @@ public class EnemyWavesManager : MonoBehaviour
     {
         isSpawningWave = true;
 
-        yield return new WaitForSeconds(SecondsBetweenWaves);
+        time = 0;
+        while (time < SecondsBetweenWaves)
+        {
+            time += Time.deltaTime;
+            yield return null;
+        }
 
         EnemyWaveSO wave = waves[currentWave];
 

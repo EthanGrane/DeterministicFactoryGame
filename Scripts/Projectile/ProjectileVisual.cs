@@ -43,8 +43,19 @@ public class ProjectileVisual : MonoBehaviour
         
         visual.gameObject.SetActive(true);
         visual.position = projectile.position;
-        visual.gameObject.GetComponentInChildren<TrailRenderer>().Clear();
+        
+        TrailRenderer trail = visual.gameObject.GetComponentInChildren<TrailRenderer>();
+        SpriteRenderer sprite = visual.gameObject.GetComponentInChildren<SpriteRenderer>();
+        
+        trail.Clear();
+        
+        trail.endColor = projectile.color;
+        trail.startColor = projectile.color;
+        sprite.color = projectile.color;
 
+        visual.gameObject.transform.localScale = Vector3.one * projectile.collisionRadius;
+        trail.startWidth = projectile.collisionRadius;
+        
         activeVisuals.Add(projectile, visual);
     }
 

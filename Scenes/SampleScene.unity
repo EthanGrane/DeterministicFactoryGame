@@ -314,7 +314,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: blocks.Array.size
-      value: 7
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: 'blocks.Array.data[0]'
@@ -344,6 +344,18 @@ PrefabInstance:
       propertyPath: 'blocks.Array.data[6]'
       value: 
       objectReference: {fileID: 11400000, guid: 64086417b81cb7f4b894d8cf7c169495, type: 2}
+    - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'blocks.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2299e7bdafeb93144be4632ab8f02d22, type: 2}
+    - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'blocks.Array.data[8]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 3b7fd63c7a9da6d4ebfe91aee58196ab, type: 2}
+    - target: {fileID: 2787098170590104885, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: 'blocks.Array.data[9]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 12f07d032124fea408895fe864539d04, type: 2}
     - target: {fileID: 3685945895045405006, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: wallProximityCost
       value: 15
