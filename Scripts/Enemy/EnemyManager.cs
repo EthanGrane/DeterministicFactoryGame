@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
@@ -13,8 +14,10 @@ public class EnemyManager : MonoBehaviour
 
     public Action<Enemy> onEnemyDie;
     public Action onAllEnemiesDead;
+    public Action onPathChanged;
 
     private List<Vector2Int> path;
+    private bool pathDirty = true;
     
     private void Awake()
     {
@@ -23,26 +26,51 @@ public class EnemyManager : MonoBehaviour
 
     private void Start()
     {
+        SetPathDirty();
         RecalculateFlow();
+        
+        LogicManager.Instance.OnTick += RecalculateFlow;
     }
 
+    public void SetPathDirty()
+    {
+        pathDirty = true;
+    }
+    
     private void RecalculateFlow()
     {
+        if(!pathDirty) return;
+        if(EnemyWavesManager.Instance.GetWavePhase() != WavePhase.Planning) return;
+        
+        pathDirty = false;
+        
         path = new List<Vector2Int>();
         path = PathfindingAStar.Instance.GetPathToGoal();
+        
         foreach (var enemy in enemies)
         {
             if (enemy == null) continue;
 
-            enemy.currentPath = path;
+            enemy.currentPath = GetPathCentered().ToList();
             enemy.pathIndex = 0;
         }
+        
+        onPathChanged?.Invoke();
     }
 
     public Vector2Int[] GetPath() => path.ToArray();
-    
+
+    public Vector2[] GetPathCentered()
+    {
+        Vector2[] offsetPath = new Vector2[path.Count];
+        for (int i = 0; i < path.Count; i++)
+            offsetPath[i] = path[i] + Vector2.one * 0.5f;
+        
+        return offsetPath;
+    }
+
     /* =====================
-     * ENEMY LOGIC 
+     * ENEMY LOGIC
      * ===================== */
 
     public EnemyTierSO GetLowerTier(EnemyTierSO current)

@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour
     private Vector2 lastDir;
 
     // ================= PATHFINDING =================
-    [HideInInspector] public List<Vector2Int> currentPath;
+    [HideInInspector] public List<Vector2> currentPath;
     [HideInInspector] public int pathIndex = 0;
 
     private void Start()
@@ -61,7 +61,7 @@ public class Enemy : MonoBehaviour
     {
         if (!isAlive) return;
 
-        currentPath = EnemyManager.Instance.GetPath().ToList();
+        currentPath = EnemyManager.Instance.GetPathCentered().ToList();
         pathIndex = 0;
     }
 }

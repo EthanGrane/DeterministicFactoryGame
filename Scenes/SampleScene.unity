@@ -264,6 +264,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 884571696915450645, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: planningColor.a
+      value: 0.19607843
+      objectReference: {fileID: 0}
+    - target: {fileID: 884571696915450645, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: planningColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 884571696915450645, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: planningColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 884571696915450645, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: planningColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 884571696915450645, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
+      propertyPath: spawningColor.a
+      value: 0.19607843
+      objectReference: {fileID: 0}
     - target: {fileID: 2423087960631054907, guid: c47b9f1145ddd4e4ca8ec4edef74b62d, type: 3}
       propertyPath: m_ChunkCullingBounds.x
       value: 0

@@ -10,8 +10,8 @@ public class PathfindingAStar : MonoBehaviour
     public float obstacleBreakCostMultiplier = 1f;
 
     [Header("Wall Proximity Settings")]
-    public float wallProximityCost = 2f; // Coste adicional por cercanía a muros
-    public int wallProximityDistance = 3; // Distancia de penalización
+    public float wallProximityCost = 5f; // Coste adicional por cercanía a muros
+    public int wallProximityDistance = 5; // Distancia de penalización
 
     [Header("Movement Costs")]
     public float straightCost = 1f;
@@ -19,7 +19,6 @@ public class PathfindingAStar : MonoBehaviour
     private Vector2Int? start = null;
     private Vector2Int? end = null;
 
-    public FlowField CurrentFlow { get; private set; }
     public byte[,] wallDistance;
     
     // Vecinos con diagonales (los primeros 4 son cardinales, más eficiente)
@@ -260,19 +259,26 @@ public class PathfindingAStar : MonoBehaviour
         int dx = to.x - from.x;
         int dy = to.y - from.y;
 
-        Vector2Int sideA = new(from.x + dx, from.y);
-        Vector2Int sideB = new(from.x, from.y + dy);
+        Vector2Int sideA = new(from.x + dx, from.y);  // tile horizontal
+        Vector2Int sideB = new(from.x, from.y + dy);  // tile vertical
 
         if (!IsValid(sideA) || !IsValid(sideB)) 
             return false;
 
-        if (tiles[sideA.x, sideA.y]?.terrainSO?.solid == true) 
+        Tile tileA = tiles[sideA.x, sideA.y];
+        Tile tileB = tiles[sideB.x, sideB.y];
+
+        // Bloquear si cualquiera es terreno sólido
+        if (tileA?.terrainSO?.solid == true || tileB?.terrainSO?.solid == true) 
             return false;
-        if (tiles[sideB.x, sideB.y]?.terrainSO?.solid == true) 
+
+        // Bloquear si cualquiera tiene building sólido
+        if (tileA?.building?.block?.solid == true || tileB?.building?.block?.solid == true)
             return false;
 
         return true;
     }
+
 
     private void EnsureEndpoints()
     {
@@ -290,8 +296,7 @@ public class PathfindingAStar : MonoBehaviour
         }
     }
 
-    private bool IsValid(Vector2Int p) => 
-        p.x >= 0 && p.x < World.WorldSize && p.y >= 0 && p.y < World.WorldSize;
+    private bool IsValid(Vector2Int p) => p.x >= 0 && p.x < World.WorldSize && p.y >= 0 && p.y < World.WorldSize;
 
     // ========================= NODO =========================
     class Node

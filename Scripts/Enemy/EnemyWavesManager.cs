@@ -5,22 +5,31 @@ using UnityEngine;
 [RequireComponent(typeof(EnemyManager))]
 public class EnemyWavesManager : MonoBehaviour
 {
+    public static EnemyWavesManager Instance;
+    
     public EnemyWaveSO[] waves;
     public GameObject enemyPrefab;
 
     public int currentWave = 0;
+    
+    public Action<WavePhase> onPhaseChanged;
 
     const int SecondsBetweenWaves = 60;
     const float SpawnDelay = 0.2f;
 
     EnemyBasePoint enemyBasePosition;
     Coroutine enemyWavesCoroutine;
-    bool isSpawningWave = false;
-
+    WavePhase wavePhase = WavePhase.Planning;
+    
     private float time = 0;
     
     private void Awake()
     {
+        if(Instance == null)
+            Instance = this;
+        else
+            Destroy(this);
+        
         enemyBasePosition = FindFirstObjectByType<EnemyBasePoint>();
     }
 
@@ -38,7 +47,7 @@ public class EnemyWavesManager : MonoBehaviour
     
     void OnAllEnemiesDead()
     {
-        if (isSpawningWave)
+        if (wavePhase == WavePhase.Spawning)
             return;
 
         if (currentWave >= waves.Length)
@@ -54,7 +63,8 @@ public class EnemyWavesManager : MonoBehaviour
 
     IEnumerator StartWaveRound()
     {
-        isSpawningWave = true;
+        yield return new WaitForSeconds(1);
+        ChangePhase(WavePhase.Planning);
 
         time = 0;
         while (time < SecondsBetweenWaves && currentWave != 0)
@@ -63,15 +73,15 @@ public class EnemyWavesManager : MonoBehaviour
             yield return null;
         }
 
+        ChangePhase(WavePhase.Spawning);
         EnemyWaveSO wave = waves[currentWave];
-
         for (int i = 0; i < wave.waves.Length; i++)
         {
             EnemyWaveSquad squad = wave.waves[i];
             yield return StartCoroutine(SpawnWaveSquad(squad));
         }
 
-        isSpawningWave = false;
+        ChangePhase(WavePhase.WaitingNext);
 
         if (EnemyManager.Instance.GetEnemiesAliveCount() == 0)
         {
@@ -98,4 +108,19 @@ public class EnemyWavesManager : MonoBehaviour
             yield return new WaitForSeconds(SpawnDelay);
         }
     }
+
+    void ChangePhase(WavePhase newPhase)
+    {
+        wavePhase = newPhase;
+        onPhaseChanged?.Invoke(newPhase);
+    }
+    
+    public WavePhase GetWavePhase() => wavePhase;
 }
+public enum WavePhase
+{
+    Planning,      // Tiempo entre oleadas: se puede modificar el path
+    Spawning,      // Enemigos en camino: no se puede modificar el path
+    WaitingNext    // Espera entre oleadas después de morir todos los enemigos
+}
+

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -23,6 +24,9 @@ public class BuildingManager : MonoBehaviour
     private WorldRenderer worldRenderer;
     [CanBeNull] Block selectedBlock = null;
     int rotation = 0;
+    
+    // TOOL FOR TESTIG (BORRAR)
+    bool noMaterialsNeeded = false;
     
     private void Awake()
     {
@@ -58,7 +62,7 @@ public class BuildingManager : MonoBehaviour
         {
             bool result = Build(tilePos.x, tilePos.y, selectedBlock, rotation);
         }
-
+        
         // Remove
         if (Input.GetMouseButton(1))
         {
@@ -75,6 +79,8 @@ public class BuildingManager : MonoBehaviour
             rotation %= 4;
         }
 
+        // TOOL FOR TESTING (BORRAR)
+        if(Input.GetKeyDown(KeyCode.F1)) noMaterialsNeeded = !noMaterialsNeeded;
     }
 
     void HandleGhostBuilding(Vector3Int tilePos)
@@ -110,23 +116,31 @@ public class BuildingManager : MonoBehaviour
 
     public bool CanBuild(int startX, int startY, Block block)
     {
-        if(world == null)
+        if (world == null)
             world = World.Instance;
-        
+
         Tile[,] tiles = world.GetTiles();
 
-        if (block.buildingCost != null && block.buildingCost.Length != 0)
+        // Comprobar inventario
+        if (!noMaterialsNeeded)
         {
-            Inventory playerInv = GameManager.Instance.GetPlayerInventory();
-            for (int i = 0; i < block.buildingCost.Length; i++)
+            if (block.buildingCost != null && block.buildingCost.Length != 0)
             {
-                if(playerInv.Contains(block.buildingCost[i].requieredItem, block.buildingCost[i].amount))
-                    continue;
-                
-                return false;
+                Inventory playerInv = GameManager.Instance.GetPlayerInventory();
+                foreach (var cost in block.buildingCost)
+                {
+                    if (!playerInv.Contains(cost.requieredItem, cost.amount))
+                        return false;
+                }
             }
         }
 
+        Vector2Int[] path = null;
+        bool checkPath = EnemyWavesManager.Instance.GetWavePhase() != WavePhase.Planning;
+        if (checkPath)
+            path = EnemyManager.Instance.GetPath();
+
+        // Recorrer todos los tiles del multibloque
         for (int x = 0; x < block.size; x++)
         {
             for (int y = 0; y < block.size; y++)
@@ -134,11 +148,17 @@ public class BuildingManager : MonoBehaviour
                 int tx = startX + x;
                 int ty = startY + y;
 
+                // Limites del mundo
                 if (tx < 0 || ty < 0 || tx >= tiles.GetLength(0) || ty >= tiles.GetLength(1))
                     return false;
 
                 Tile tile = tiles[tx, ty];
+
                 if (tile == null || tile.terrainSO.solid || tile.building != null)
+                    return false;
+
+                // Revisar path de enemigos
+                if (checkPath && path.Contains(tile.position))
                     return false;
             }
         }
@@ -189,6 +209,7 @@ public class BuildingManager : MonoBehaviour
         }
         
         worldRenderer.SetTileVisual(startX, startY, tiles[startX,startY]);
+        EnemyManager.Instance.SetPathDirty();
         
         return true;
     }
@@ -227,7 +248,8 @@ public class BuildingManager : MonoBehaviour
         }
 
         LogicManager.Instance.Unregister(building.logic);
-        
+        EnemyManager.Instance.SetPathDirty();
+
         return true;
     }
 
