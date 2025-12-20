@@ -4,12 +4,13 @@ public class Inventory
 {
     public InventorySlot[] slots;
 
-    public Inventory(int slotCount)
+    public Inventory(int slotCount, int capacity = 100)
     {
         slots = new InventorySlot[slotCount];
         for (int i = 0; i < slotCount; i++)
         {
             slots[i] = new InventorySlot();
+            slots[i].capacity = capacity;
         }
     }
 

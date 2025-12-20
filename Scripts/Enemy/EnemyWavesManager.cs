@@ -21,7 +21,7 @@ public class EnemyWavesManager : MonoBehaviour
     Coroutine enemyWavesCoroutine;
     WavePhase wavePhase = WavePhase.Planning;
     
-    private float time = 0;
+    private float phaseTimerCountdown = 0;
     
     private void Awake()
     {
@@ -42,7 +42,7 @@ public class EnemyWavesManager : MonoBehaviour
     [ContextMenu("Start Wave")]
     public void StartWave()
     {
-        time = 999;
+        phaseTimerCountdown = 999;
     }
     
     void OnAllEnemiesDead()
@@ -66,10 +66,10 @@ public class EnemyWavesManager : MonoBehaviour
         yield return new WaitForSeconds(1);
         ChangePhase(WavePhase.Planning);
 
-        time = 0;
-        while (time < SecondsBetweenWaves && currentWave != 0)
+        phaseTimerCountdown = 0;
+        while (phaseTimerCountdown < SecondsBetweenWaves && currentWave != 0)
         {
-            time += Time.deltaTime;
+            phaseTimerCountdown += Time.deltaTime;
             yield return null;
         }
 
@@ -116,6 +116,8 @@ public class EnemyWavesManager : MonoBehaviour
     }
     
     public WavePhase GetWavePhase() => wavePhase;
+    
+    public float GetPhaseTimerCountdown() => phaseTimerCountdown;
 }
 public enum WavePhase
 {

@@ -25,6 +25,9 @@ public class BuildingManager : MonoBehaviour
     [CanBeNull] Block selectedBlock = null;
     int rotation = 0;
     
+    // Events
+    public Action<Block> onBlockSelected;
+    
     // TOOL FOR TESTIG (BORRAR)
     bool noMaterialsNeeded = false;
     
@@ -69,7 +72,7 @@ public class BuildingManager : MonoBehaviour
             if(selectedBlock == null)
                 RemoveBuilding(tilePos.x, tilePos.y);
             else
-                selectedBlock = null;
+                SetSelectedBlock(null);
         }
 
         // Rotate
@@ -108,10 +111,17 @@ public class BuildingManager : MonoBehaviour
         if (blocks.Contains(block))
         {
             if(selectedBlock == block)
-                selectedBlock = null;
+                SetSelectedBlock(null);
             else
-                selectedBlock = block;
+                SetSelectedBlock(block);
+            
         }
+    }
+
+    void SetSelectedBlock(Block block)
+    {
+        selectedBlock = block;
+        onBlockSelected?.Invoke(block);
     }
 
     public bool CanBuild(int startX, int startY, Block block)
@@ -207,6 +217,11 @@ public class BuildingManager : MonoBehaviour
                     buildingCollider.SetTile(new Vector3Int(tx, ty, 0), colliderTile);
             }
         }
+
+        for (int i = 0; i < block.buildingCost.Length; i++)
+        {
+            GameManager.Instance.RemoveItem(block.buildingCost[i].requieredItem, block.buildingCost[i].amount);
+        }
         
         worldRenderer.SetTileVisual(startX, startY, tiles[startX,startY]);
         EnemyManager.Instance.SetPathDirty();
@@ -245,6 +260,12 @@ public class BuildingManager : MonoBehaviour
 
                 buildingCollider.SetTile(new Vector3Int(tx, ty, 0), null);
             }
+        }
+        
+        
+        for (int i = 0; i < building.block.buildingCost.Length; i++)
+        {
+            GameManager.Instance.AddItemToInventory(building.block.buildingCost[i].requieredItem, building.block.buildingCost[i].amount);
         }
 
         LogicManager.Instance.Unregister(building.logic);
