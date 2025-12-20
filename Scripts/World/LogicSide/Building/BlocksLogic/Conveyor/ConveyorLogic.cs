@@ -148,7 +148,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
                 if (itemBuffer[0] != null)
                     return;
 
-                Item extracted = provider.ExtractFirst();
+                Item extracted = provider.PeekFirst();
                 if (extracted != null)
                 {
                     itemBuffer[0] = extracted;
@@ -180,7 +180,7 @@ public class ConveyorLogic : BuildingLogic, IItemAcceptor
         // Extraer de StorageLogic
         if (logic is IItemProvider itemProvider)
         {
-            Item extractedItem = itemProvider.ExtractFirst();
+            Item extractedItem = itemProvider.PeekFirst();
             if (extractedItem != null)
             {
                 itemBuffer[0] = extractedItem;

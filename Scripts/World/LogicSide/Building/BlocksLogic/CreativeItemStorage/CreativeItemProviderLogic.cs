@@ -19,7 +19,7 @@ public class CreativeItemProviderLogic : BuildingLogic, IItemProvider
         return null;
     }
 
-    public Item ExtractFirst()
+    public Item PeekFirst()
     {
         return item;
     }

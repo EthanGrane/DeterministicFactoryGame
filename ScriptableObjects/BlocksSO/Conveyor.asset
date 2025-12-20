@@ -22,4 +22,4 @@ MonoBehaviour:
     amount: 1
   solid: 0
   CanBeRemovedByPlayer: 1
-  ticksToMoveConveyorItem: 15
+  ticksToMoveConveyorItem: 12

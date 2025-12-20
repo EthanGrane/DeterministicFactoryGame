@@ -60,41 +60,84 @@ public class LogicManager : MonoBehaviour
     {
         foreach (var logic in logics)
         {
-            if (logic is IItemProvider provider)
+            if (logic is not IItemProvider provider)
+                continue;
+
+            if (logic is ConveyorLogic)
+                continue;
+
+            Item itemToPush = null;
+            IItemAcceptor targetAcceptor = null;
+
+            var perimeter = GetPerimeterNeighbors(
+                logic.building.position,
+                logic.building.block.size
+            );
+
+            foreach (var pos in perimeter)
             {
-                if(logic is ConveyorLogic) return;
-                
-                var neighbors = World.Instance.GetNeighbors(logic.building.position);
-            
-                Item itemToPush = null;
-                IItemAcceptor targetAcceptor = null;
+                var neighbor = World.Instance.GetBuilding(pos);
+                if (neighbor == null) continue;
 
-                // Buscar primero un acceptor que pueda aceptar
-                foreach (var neighbor in neighbors)
+                if (neighbor.logic is IItemAcceptor acceptor)
                 {
-                    if (neighbor.building.logic is IItemAcceptor acceptor)
-                    {
-                        // Extraemos temporalmente para preguntar si puede insertarse
-                        Item peekItem = provider.ExtractFirst();
-                        if (peekItem == null) break; // no hay items
+                    Item peekItem = provider.PeekFirst();
+                    if (peekItem == null)
+                        break;
 
-                        if (acceptor.CanAccept(peekItem))
-                        {
-                            itemToPush = peekItem;
-                            targetAcceptor = acceptor;
-                            break;
-                        }
+                    if (acceptor.CanAccept(peekItem))
+                    {
+                        itemToPush = peekItem;
+                        targetAcceptor = acceptor;
+                        break;
                     }
                 }
+            }
 
-                // Si encontramos destino, extraemos y hacemos insert
-                if (targetAcceptor != null && itemToPush != null)
-                {
-                    provider.Extract(itemToPush); // ahora sí lo sacamos
-                    targetAcceptor.Insert(itemToPush);
-                }
+            if (targetAcceptor != null && itemToPush != null)
+            {
+                provider.Extract(itemToPush);
+                targetAcceptor.Insert(itemToPush);
             }
         }
     }
+
+    public static List<Vector2Int> GetOccupiedTiles(Vector2Int center, int size)
+    {
+        List<Vector2Int> tiles = new();
+        int half = size / 2;
+
+        for (int x = -half; x <= half; x++)
+        for (int y = -half; y <= half; y++)
+            tiles.Add(new Vector2Int(center.x + x, center.y + y));
+
+        return tiles;
+    }
+    public static HashSet<Vector2Int> GetPerimeterNeighbors(Vector2Int origin, int size)
+    {
+        HashSet<Vector2Int> result = new();
+
+        int minX = origin.x;
+        int maxX = origin.x + size - 1;
+        int minY = origin.y;
+        int maxY = origin.y + size - 1;
+
+        // Arriba y abajo
+        for (int x = minX; x <= maxX; x++)
+        {
+            result.Add(new Vector2Int(x, maxY + 1)); // arriba
+            result.Add(new Vector2Int(x, minY - 1)); // abajo
+        }
+
+        // Izquierda y derecha
+        for (int y = minY; y <= maxY; y++)
+        {
+            result.Add(new Vector2Int(minX - 1, y)); // izquierda
+            result.Add(new Vector2Int(maxX + 1, y)); // derecha
+        }
+
+        return result;
+    }
+
 
 }

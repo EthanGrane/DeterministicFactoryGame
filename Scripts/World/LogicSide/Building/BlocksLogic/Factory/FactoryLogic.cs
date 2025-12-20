@@ -74,7 +74,7 @@ public class FactoryLogic : BuildingLogic, IItemAcceptor, IItemProvider
         return factoryBlock.output;
     }
 
-    public Item ExtractFirst()
+    public Item PeekFirst()
     {
         if (factoryBlock == null)
             return null;

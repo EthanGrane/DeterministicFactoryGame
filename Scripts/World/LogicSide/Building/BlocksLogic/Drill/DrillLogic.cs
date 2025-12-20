@@ -53,7 +53,7 @@ public class DrillLogic : BuildingLogic, IItemProvider
         return this.item;
     }
 
-    public Item ExtractFirst()
+    public Item PeekFirst()
     {
         return Extract(this.item);
     }
