@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd8eef5524ab4d17ac8ebc879af0906a, type: 3}
   m_Name: Giant Cannon Turret
   m_EditorClassIdentifier: 
-  blockName: Giant Cannon Turret
   size: 4
+  blockName: Giant Cannon Turret
   blockTile: {fileID: 11400000, guid: 7d823e7488449f04ca95189cfbbde46a, type: 2}
   sprite: {fileID: 21300000, guid: 004e9899990b9c045a368a37e6518840, type: 3}
   blockHealth: 100
+  buildingCost: []
   solid: 1
   CanBeRemovedByPlayer: 1
   turretRange: 15
   projectileRateOnTicks: 100
+  maxAmmo: 20
   avaliableProjectiles:
-  - {fileID: 11400000, guid: 0482d82ee60233b4b85cb43b1abd281e, type: 2}
+  - {fileID: 11400000, guid: ba5170c7e79f4ff4880bd617556c3cd1, type: 2}

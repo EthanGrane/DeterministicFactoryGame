@@ -8,7 +8,7 @@ public class PlayerBasePoint : MonoBehaviour
     
     private void Start()
     {
-        BuildingManager.Instance.Build(new Vector2Int((int)transform.position.x,(int)transform.position.y),playerBaseBlock);
+        BuildingManager.Instance.Build((int)transform.position.x,(int)transform.position.y,playerBaseBlock);
     }
 
     private void OnDrawGizmos()

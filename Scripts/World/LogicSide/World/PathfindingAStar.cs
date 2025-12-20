@@ -285,13 +285,13 @@ public class PathfindingAStar : MonoBehaviour
         if (!start.HasValue)
         {
             var spawn = FindFirstObjectByType<EnemyBasePoint>();
-            if (spawn != null) 
+            if (spawn) 
                 start = new Vector2Int((int)spawn.transform.position.x, (int)spawn.transform.position.y);
         }
         if (!end.HasValue)
         {
             var basePoint = FindFirstObjectByType<PlayerBasePoint>();
-            if (basePoint != null) 
+            if (basePoint) 
                 end = new Vector2Int((int)basePoint.transform.position.x + 1, (int)basePoint.transform.position.y + 1);
         }
     }

@@ -178,7 +178,7 @@ public class BuildingManager : MonoBehaviour
 
     public bool Build(int startX, int startY, Block block, int rotation = 0)
     {
-        if (block == null) return false;
+        if (!block) return false;
         if (!CanBuild(startX, startY, block))
             return false;
 
@@ -228,8 +228,6 @@ public class BuildingManager : MonoBehaviour
         
         return true;
     }
-    public bool Build(Vector2Int pos, Block block, int rotation = 0) => Build(pos.x, pos.y, block, rotation);
-    
     public bool RemoveBuilding(int startX, int startY)
     {
         if (world == null) world = World.Instance;

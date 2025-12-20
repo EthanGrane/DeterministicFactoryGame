@@ -46,29 +46,40 @@ public class WorldRenderer : MonoBehaviour
     {
         Vector3Int pos = new Vector3Int(x, y, 0);
 
-        // Terrain Visual
+        // Terrain
         terrainTilemap.SetTile(pos, tile.terrainSO.sprite);
 
-        // Building Visual
+        // Building
         if (tile.building == null)
         {
             buildingTilemap.SetTile(pos, null);
-            // Also clear flags so no stale transform remains:
             buildingTilemap.SetTransformMatrix(pos, Matrix4x4.identity);
-        }        
-        else
-        {
-            buildingTilemap.SetTile(pos, tile.building.block.blockTile);
-
-            int size = tile.building.block.size;
-
-            Vector3 centerOffset = new Vector3((size - 1) * 0.5f, (size - 1) * 0.5f, 0f);
-            Quaternion rot = Quaternion.Euler(0f, 0f, tile.building.rotation * -90f);
-            Matrix4x4 trs = Matrix4x4.TRS(centerOffset, rot, Vector3.one);
-
-            buildingTilemap.SetTransformMatrix(pos, trs);
+            return;
         }
+
+        Building b = tile.building;
+
+        if (b.position.x != x || b.position.y != y)
+        {
+            buildingTilemap.SetTile(pos, null);
+            buildingTilemap.SetTransformMatrix(pos, Matrix4x4.identity);
+            return;
+        }
+
+        buildingTilemap.SetTile(pos, b.block.blockTile);
+
+        Vector3 centerOffset = new Vector3(
+            (b.block.size - 1) * 0.5f,
+            (b.block.size - 1) * 0.5f,
+            0f
+        );
+
+        Quaternion rot = Quaternion.Euler(0f, 0f, b.rotation * -90f);
+        Matrix4x4 trs = Matrix4x4.TRS(centerOffset, rot, Vector3.one);
+
+        buildingTilemap.SetTransformMatrix(pos, trs);
     }
+
 
     
 }
