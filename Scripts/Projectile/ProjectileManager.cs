@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,91 +7,100 @@ public class ProjectileManager : MonoBehaviour
     public List<Projectile> projectiles = new();
 
     ProjectileVisual projectileVisual;
-    
+
     private void Awake()
     {
         if (Instance == null)
-        {
             Instance = this;
-        }
         else
-        {
             Destroy(gameObject);
-        }
-        
-        if(projectileVisual == null)
-            projectileVisual = GetComponent<ProjectileVisual>();
+
+        projectileVisual = GetComponent<ProjectileVisual>();
     }
-    
-    void Update()
+
+    public void SpawnProjectile(Vector3 pos, Vector3 dir, ProjectileSO data)
+    {
+        if (data == null) return;
+
+        pos.y = 0;
+        dir.y = 0;
+
+        Projectile p = new Projectile(pos, dir.normalized, data);
+
+        if (projectileVisual != null)
+            projectileVisual.RegisterProjectile(p, data);
+
+        projectiles.Add(p);
+    }
+
+    private void Update()
     {
         float dt = Time.deltaTime;
 
+        // Actualizar posiciones y lifetimes
         for (int i = 0; i < projectiles.Count; i++)
         {
             Projectile p = projectiles[i];
 
-            float step = p.speed * dt;
-            p.position += p.direction * step;
-            p.lifetme -= dt;
+            p.position += p.direction * p.speed * dt;
+            p.lifetime -= dt;
 
-            if (p.lifetme <= 0f || p.isDead)
+            if (p.lifetime <= 0f || p.isDead)
             {
-                projectileVisual.UnregisterProjectile(p);
+                if (projectileVisual != null)
+                    projectileVisual.UnregisterProjectile(p);
+
                 projectiles.RemoveAt(i);
                 i--;
-                continue;
             }
         }
-        
+
         CheckCollisionDetection();
     }
 
-    void CheckCollisionDetection()
+    private void CheckCollisionDetection()
     {
         Enemy[] enemies = EnemyManager.Instance.enemies.ToArray();
-        if(enemies == null || enemies.Length == 0) return;
-        
+        if (enemies.Length == 0) return;
+
         for (int i = 0; i < enemies.Length; i++)
         {
+            Enemy enemy = enemies[i];
+            Vector3 enemyPos = enemy.transform.position;
+            enemyPos.y = 0; // Ignorar altura
+
             for (int j = 0; j < projectiles.Count; j++)
             {
-                Enemy enemy = enemies[i];
-                Vector2 toProjectile = projectiles[j].position - (Vector2)enemy.transform.position;
-                float dist = toProjectile.magnitude;
-                if (dist <= enemy.collisionRadius + projectiles[j].collisionRadius)
-                { 
-                    Projectile p = projectiles[j];
+                Projectile p = projectiles[j];
+                Vector3 projPos = p.position;
+                projPos.y = 0;
 
-                    if (p.hitEnemies.Contains(enemy))
-                        continue;
+                float dist = Vector3.Distance(projPos, enemyPos);
+                if (dist <= enemy.collisionRadius + p.collisionRadius)
+                {
+                    if (p.hitEnemies.Contains(enemy)) continue;
+
                     p.hitEnemies.Add(enemy);
-                    
                     EnemyManager.Instance.ProcessDamage(enemy, p);
-                    
+
                     p.penetration--;
-                    
-                    if(p.penetration <= 0)
+                    if (p.penetration <= 0)
                         p.isDead = true;
-                }            
+                }
             }
         }
     }
-    
-    public void SpawnProjectile(Vector2 pos, Vector2 dir, ProjectileSO data)
-    {
-        Projectile p = new Projectile(pos, dir, data);
 
-        projectileVisual.RegisterProjectile(p,data);
-        projectiles.Add(p);
-    }
-    
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
-        for (int i = 0; i < projectiles.Count; i++)
+        if (projectiles == null) return;
+
+        Gizmos.color = Color.red;
+        foreach (var p in projectiles)
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(projectiles[i].position, projectiles[i].collisionRadius);
+            Vector3 pos = p.position;
+            pos.y = 0;
+            Gizmos.DrawWireSphere(pos, p.collisionRadius);
         }
     }
 }

@@ -10,7 +10,7 @@ public class Enemy : MonoBehaviour
     [HideInInspector] public float moveSpeed = 2f;
 
     private bool isAlive = true;
-    private Vector2 lastDir;
+    private Vector3 lastDir;
 
     // ================= PATHFINDING =================
     [HideInInspector] public List<Vector2> currentPath;
@@ -35,14 +35,15 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        Vector2 targetPos = currentPath[pathIndex];
-        Vector2 dir = (targetPos - (Vector2)transform.position).normalized;
-        dir = Vector2.Lerp(lastDir, dir, 0.2f);
+        Vector3 targetPos = currentPath[pathIndex];
+        targetPos = new Vector3(targetPos.x, 0, targetPos.y);
+        Vector3 dir = (targetPos - transform.position).normalized;
+        dir = Vector3.Lerp(lastDir, dir, 0.2f);
         lastDir = dir;
-
+        
         transform.Translate(dir * moveSpeed * Time.deltaTime, Space.World);
 
-        if (Vector2.Distance(transform.position, targetPos) < 0.1f)
+        if (Vector3.Distance(transform.position, targetPos) < 0.1f)
             pathIndex++;
     }
 
@@ -65,8 +66,8 @@ public class Enemy : MonoBehaviour
     }
 
     
-    public Vector2 GetPosition() => transform.position;
-    public Vector2 GetVelocity() => lastDir * moveSpeed;
+    public Vector3 GetPosition() => transform.position;
+    public Vector3 GetVelocity() => lastDir * moveSpeed;
 
     // ================= PATHFINDING =================
     public void RecalculatePath()

@@ -3,11 +3,10 @@ using UnityEngine;
 public class PlayerProjectile : MonoBehaviour
 {
     public ProjectileSO projectile;
-    [Space]
     public float timeBetweenShots = 0.5f;
 
-    private float time;
-    
+    float time;
+
     void Update()
     {
         if (time > 0)
@@ -15,15 +14,47 @@ public class PlayerProjectile : MonoBehaviour
             time -= Time.deltaTime;
             return;
         }
-        
+
         if (Input.GetKey(KeyCode.Space))
         {
+
             time = timeBetweenShots;
+
+            if (Camera.main == null)
+            {
+                return;
+            }
+
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+
+            if (!groundPlane.Raycast(ray, out float enter))
+            {
+                return;
+            }
+
+            Vector3 mouseWorldPos = ray.GetPoint(enter);
+
+            Vector3 dir = mouseWorldPos - transform.position;
+            dir.y = 0;
+
+            if (dir.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
+            dir.Normalize();
+
+            if (ProjectileManager.Instance == null)
+            {
+                return;
+            }
             
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 direction = mousePos - (Vector2)transform.position;
-            direction = direction.normalized;
-            ProjectileManager.Instance.SpawnProjectile(transform.position, direction, projectile);
+            ProjectileManager.Instance.SpawnProjectile(
+                transform.position,
+                dir,
+                projectile
+            );
         }
     }
 }

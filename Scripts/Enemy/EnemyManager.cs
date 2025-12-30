@@ -16,7 +16,7 @@ public class EnemyManager : MonoBehaviour
     public Action onAllEnemiesDead;
     public Action onPathChanged;
 
-    private List<Vector2Int> path;
+    [SerializeField] private List<Vector2Int> path;
     private bool pathDirty = true;
     
     private void Awake()
@@ -93,18 +93,24 @@ public class EnemyManager : MonoBehaviour
         sr.color = c;
     }
     
-    public Enemy[] GetEnemiesOnRadius(Vector2 center, float radius)
+public Enemy[] GetEnemiesOnRadius(Vector3 center, float radius)
+{
+    List<Enemy> enemiesDetected = new();
+
+    Vector3 centerFlat = new Vector3(center.x, 0, center.z);
+
+    for (int i = 0; i < enemies.Count; i++)
     {
-        List<Enemy> enemiesDetected = new();
+        Vector3 enemyPos = enemies[i].transform.position;
+        enemyPos.y = 0;
 
-        for (int i = 0; i < enemies.Count; i++)
-        {
-            if (Vector2.Distance(center, enemies[i].transform.position) <= radius)
-                enemiesDetected.Add(enemies[i]);
-        }
-
-        return enemiesDetected.ToArray();
+        if (Vector3.Distance(centerFlat, enemyPos) <= radius)
+            enemiesDetected.Add(enemies[i]);
     }
+
+    return enemiesDetected.ToArray();
+}
+
 
     public void RegisterEnemy(Enemy enemy)
     {

@@ -15,6 +15,6 @@ MonoBehaviour:
   damage: 1
   penetration: 3
   speed: 40
-  lifetime: 0.33
+  lifetime: 1
   collisionRadius: 0.33
   projectileColor: {r: 0.015686274, g: 0.618726, b: 1, a: 1}

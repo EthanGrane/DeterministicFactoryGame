@@ -1,60 +1,71 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMover : MonoBehaviour
 {
     public float moveSpeed = 10f;
-    public float acceleration = 10f;
-    public float deceleration = 0.1f;
+    public float acceleration = 30f;
+    public float deceleration = 0.15f;
 
-    Rigidbody2D rb;
+    Rigidbody rb;
 
-    Vector2 moveInputs;
-    Vector2 lookDirection;
-    Vector2 velocity;
-    Vector2 smoothDampVelocity; // ← necesario para SmoothDamp
-    
-    Vector2 lastDirection;
+    Vector3 moveInputs;
+    Vector3 velocity;
+    Vector3 smoothDampVelocity;
 
-    private void Awake()
+    Vector3 lookDirection;
+
+    void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX |
+                         RigidbodyConstraints.FreezeRotationZ |
+                         RigidbodyConstraints.FreezePositionY;
     }
 
-    private void Update()
+    void Update()
     {
-        moveInputs = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        
-        if(moveInputs.sqrMagnitude != 0)
-            lastDirection = Vector2.Lerp(lookDirection, moveInputs.normalized, Time.deltaTime * 15f);
-        
-        lookDirection =lastDirection;
+        moveInputs = new Vector3(
+            Input.GetAxisRaw("Horizontal"),
+            0,
+            Input.GetAxisRaw("Vertical")
+        ).normalized;
+
+        if (moveInputs.sqrMagnitude > 0.01f)
+            lookDirection = Vector3.Lerp(
+                lookDirection,
+                moveInputs,
+                Time.deltaTime * 15f
+            );
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         if (moveInputs.sqrMagnitude > 0.01f)
         {
-            // Acelera
-            velocity += moveInputs.normalized * (acceleration * Time.fixedDeltaTime);
-            velocity = Vector2.ClampMagnitude(velocity, moveSpeed);
+            velocity += moveInputs * (acceleration * Time.fixedDeltaTime);
+            velocity = Vector3.ClampMagnitude(velocity, moveSpeed);
         }
         else
         {
-            // Frenado suave
-            velocity = Vector2.SmoothDamp(
-                velocity, 
-                Vector2.zero, 
-                ref smoothDampVelocity, 
+            velocity = Vector3.SmoothDamp(
+                velocity,
+                Vector3.zero,
+                ref smoothDampVelocity,
                 deceleration
             );
         }
 
         rb.linearVelocity = velocity;
 
-        rb.transform.up = Vector3.Lerp(
-            rb.transform.up, 
-            lookDirection, 
-            Time.fixedDeltaTime * 10f
-        );
+        if (lookDirection.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(lookDirection, Vector3.up);
+            rb.MoveRotation(Quaternion.Slerp(
+                rb.rotation,
+                targetRot,
+                Time.fixedDeltaTime * 10f
+            ));
+        }
     }
 }

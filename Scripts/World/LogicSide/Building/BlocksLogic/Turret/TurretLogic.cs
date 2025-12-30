@@ -19,17 +19,19 @@ public class TurretLogic : BuildingLogic, IItemAcceptor
         }
 
         TurretBlock turretBlock = building.block as TurretBlock;
-        Vector2 pos = building.position + Vector2.one * (building.block.size - 1);
+        Vector3 pos = building.position + Vector2.one * (building.block.size - 1);
+        pos.z = pos.y;
+        pos.y = 0;
 
         Enemy[] enemies = EnemyManager.Instance.GetEnemiesOnRadius(pos, turretBlock.turretRange);
         if (enemies.Length == 0) return;
-
+        
         Enemy nearestEnemy = null;
         float nearestDistance = float.MaxValue;
 
         foreach (var e in enemies)
         {
-            float d = Vector2.Distance(pos, e.GetPosition());
+            float d = Vector3.Distance(pos, e.GetPosition());
             if (d < nearestDistance)
             {
                 nearestDistance = d;
@@ -46,12 +48,12 @@ public class TurretLogic : BuildingLogic, IItemAcceptor
         if (projectile == null)
             return;
 
-        Vector2 enemyPos = nearestEnemy.GetPosition();
-        Vector2 enemyVel = nearestEnemy.GetVelocity();
+        Vector3 enemyPos = nearestEnemy.GetPosition();
+        Vector3 enemyVel = nearestEnemy.GetVelocity();
 
         float travelTime = nearestDistance / projectile.speed;
-        Vector2 predictedPos = enemyPos + enemyVel * travelTime;
-        Vector2 direction = (predictedPos - pos).normalized;
+        Vector3 predictedPos = enemyPos + enemyVel * travelTime;
+        Vector3 direction = (predictedPos - pos).normalized;
 
         projectileRateCount = turretBlock.projectileRateOnTicks;
 

@@ -70,8 +70,8 @@ public class ConveyorRender : MonoBehaviour
             // Centro del tile del conveyor
             Vector3 basePos = new Vector3(
                 conveyor.building.position.x + 0.5f,
-                conveyor.building.position.y + 0.5f,
-                0
+                0,
+                conveyor.building.position.y + 0.5f
             );
 
             // Punto inicial donde empieza el movimiento del item (ajustado ligeramente hacia atrás)
@@ -111,7 +111,7 @@ public class ConveyorRender : MonoBehaviour
                 float lerpedPosition = Mathf.Lerp(slotStart, slotEnd, progress);
 
                 // Offset final en el espacio del conveyor
-                Vector3 slotOffset = new Vector3(fwd.x, fwd.y, 0) * lerpedPosition;
+                Vector3 slotOffset = new Vector3(fwd.x, 0, fwd.y) * lerpedPosition;
 
                 // Posición real donde se dibuja el item
                 visual.transform.position = startPos + slotOffset;

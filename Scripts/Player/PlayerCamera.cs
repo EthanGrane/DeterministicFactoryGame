@@ -21,7 +21,7 @@ public class PlayerCamera : MonoBehaviour
     void Update()
     {
         Vector3 pos = transform.position;
-        pos.z = cam.transform.position.z;
+        pos.y = cam.transform.position.y;
         cam.transform.position = pos;
 
         float scrollDelta = Input.GetAxis("Mouse ScrollWheel");

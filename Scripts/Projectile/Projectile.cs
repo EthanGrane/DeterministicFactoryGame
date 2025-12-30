@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class Projectile
 {
-    public Vector2 position;
-    public Vector2 direction;
+    public Vector3 position;
+    public Vector3 direction;
 
     public float speed;
-    public float lifetme;
+    public float lifetime;
     public float collisionRadius;
 
     public int damage;
@@ -17,13 +17,14 @@ public class Projectile
 
     public HashSet<Enemy> hitEnemies = new();
 
-    public Projectile(Vector2 pos, Vector2 dir, ProjectileSO data)
+    public Projectile(Vector3 pos, Vector3 dir, ProjectileSO data)
     {
-        position = pos;
-        direction = dir.normalized;
+        // Se asegura que todo sea plano XZ
+        position = new Vector3(pos.x, 0f, pos.z);
+        direction = new Vector3(dir.x, 0f, dir.z).normalized;
 
         speed = data.speed;
-        lifetme = data.lifetime;
+        lifetime = data.lifetime;
         collisionRadius = data.collisionRadius;
 
         damage = data.damage;

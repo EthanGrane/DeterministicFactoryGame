@@ -9,7 +9,7 @@ public class PathfindingVisual : MonoBehaviour
     public Color planningColor;
     public Color spawningColor;
     
-    private void Start()
+    private void Awake()
     {
         EnemyManager.Instance.onPathChanged += UpdatePathfindingVisual;
         EnemyWavesManager.Instance.onPhaseChanged += ModifyLineColor;
@@ -22,7 +22,7 @@ public class PathfindingVisual : MonoBehaviour
 
         for (int i = 0; i < path.Length; i++)
         {
-            lineRenderer.SetPosition(i, new Vector3(path[i].x + .5f, path[i].y + .5f, 0));
+            lineRenderer.SetPosition(i, new Vector3(path[i].x + .5f, .1f, path[i].y + .5f));
         }
     }
 
