@@ -6,6 +6,12 @@ public class PlayerCamera : MonoBehaviour
     public float maxZoom = 20f;
     public float zoomSpeed = 10f;
     public float zoomSmooth = 10f;
+    
+    [Space]
+    
+    public Vector3 cameraOffset = new Vector3(0,10,0);
+    
+    [Space]
 
     public Camera cam;
 
@@ -21,8 +27,7 @@ public class PlayerCamera : MonoBehaviour
     void Update()
     {
         Vector3 pos = transform.position;
-        pos.y = cam.transform.position.y;
-        cam.transform.position = pos;
+        cam.transform.position = pos + cameraOffset;
 
         float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
 
