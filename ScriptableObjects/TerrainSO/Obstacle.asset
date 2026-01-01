@@ -10,9 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b6edc08e7071c5241b4b0b0b5e46efd5, type: 3}
-  m_Name: HardStone
+  m_Name: Obstacle
   m_EditorClassIdentifier: 
-  terrainName: High Stone
+  terrainName: Obstacle
   solid: 1
   sprite: {fileID: 11400000, guid: 634dfead5356d8642be39204ff986b8a, type: 2}
   movementCost: 0
+  terrainTile: {fileID: 0}
+  terrainOrnament: {fileID: 0}

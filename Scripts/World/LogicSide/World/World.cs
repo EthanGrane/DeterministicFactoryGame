@@ -11,10 +11,7 @@ public class World : MonoBehaviour
     public TerrainSO[] terrains;
     private Dictionary<TileBase, TerrainSO> terrainByTileBase;
 
-    public TileBase colliderTile;
     public Tilemap terrainTilemap;
-    public Tilemap terrainCollider;
-    public Tilemap buildingCollider;
     
     private void Awake()
     {
@@ -51,6 +48,7 @@ public class World : MonoBehaviour
                 tiles[x, y] = new Tile(new Vector2Int(x, y), terrainSo, null);
 
                 // Set Terrain Colliders
+                /*
                 if (terrainSo != null)
                 {
                     if (terrainSo.solid)
@@ -63,6 +61,7 @@ public class World : MonoBehaviour
                     Debug.Log("NULL on x:{x} y:{y} postiion");
                     Debug.Break();
                 }
+                */
             }
         }
     }

@@ -11,6 +11,8 @@ public class WorldRenderer : MonoBehaviour
 
     private World world;
 
+    public Grid tilemapGrid;
+
     public GameObject TestTile;
     public GameObject ornamentTile;
     
@@ -28,6 +30,8 @@ public class WorldRenderer : MonoBehaviour
             return;
         }
         Instance = this;
+        
+        tilemapGrid.enabled = false;
     }
 
     void Start()
@@ -57,15 +61,10 @@ public class WorldRenderer : MonoBehaviour
 
         // Terrain
         // terrainTilemap.SetTile(pos, tile.terrainSO.sprite);
-        float height = 0f;
-        if (tile.terrainSO.solid) 
-            height = 1f;
-        GameObject threeDimTile = Instantiate(TestTile, new Vector3(pos.x + .5f,height,pos.y+ .5f), Quaternion.identity);
-        
-        if(tile.terrainSO.name == "Stone")
+        if(tile.terrainSO.name == "Stone_Material")
         {
-            GameObject ornament = Instantiate(ornamentTile, new Vector3(pos.x+ .5f, height + Random.Range(-0.025f,0f), pos.y+ .5f), Quaternion.Euler(0,90 * Random.Range((int)1,4),0));
-        }        
+            GameObject ornament = Instantiate(ornamentTile, new Vector3(pos.x+ .5f, Random.Range(-0.025f,0f), pos.y+ .5f), Quaternion.Euler(0,90 * Random.Range((int)1,4),0));
+        }
         
         // Building
         if (tile.building == null)
@@ -108,7 +107,7 @@ public class WorldRenderer : MonoBehaviour
             Destroy(oldObj);
             buildingObjects.Remove(pos);
         }
-        GameObject buildingObject = Instantiate(TestTile, new Vector3(pos.x + 0.5f, height, pos.y + 0.5f), Quaternion.identity);
+        GameObject buildingObject = Instantiate(TestTile, new Vector3(pos.x + 0.5f, 0, pos.y + 0.5f), Quaternion.identity);
         buildingObject.GetComponent<MeshFilter>().mesh = tile.building.block.mesh;
         buildingObjects[pos] = buildingObject;
 
