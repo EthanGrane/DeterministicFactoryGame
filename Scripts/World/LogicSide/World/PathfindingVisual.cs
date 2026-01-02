@@ -9,7 +9,7 @@ public class PathfindingVisual : MonoBehaviour
     public Color planningColor;
     public Color spawningColor;
     
-    private void Awake()
+    private void Start()
     {
         EnemyManager.Instance.onPathChanged += UpdatePathfindingVisual;
         EnemyWavesManager.Instance.onPhaseChanged += ModifyLineColor;

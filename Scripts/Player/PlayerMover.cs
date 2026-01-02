@@ -6,6 +6,7 @@ public class PlayerMover : MonoBehaviour
     public float moveSpeed = 10f;
     public float acceleration = 30f;
     public float deceleration = 0.15f;
+    public float externalDamping = 8f;
 
     Rigidbody rb;
 
@@ -13,15 +14,19 @@ public class PlayerMover : MonoBehaviour
     Vector3 velocity;
     Vector3 smoothDampVelocity;
 
+    Vector3 externalVelocity; // 👈 NUEVO
     Vector3 lookDirection;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotationX |
-                         RigidbodyConstraints.FreezeRotationY |
-                         RigidbodyConstraints.FreezeRotationZ |
+        rb.constraints = RigidbodyConstraints.FreezeRotation |
                          RigidbodyConstraints.FreezePositionY;
+    }
+
+    public void AddExternalVelocity(Vector3 v)
+    {
+        externalVelocity += v;
     }
 
     void Update()
@@ -57,7 +62,14 @@ public class PlayerMover : MonoBehaviour
             );
         }
 
-        rb.linearVelocity = velocity;
+        // 🔹 amortiguar fuerzas externas
+        externalVelocity = Vector3.Lerp(
+            externalVelocity,
+            Vector3.zero,
+            Time.fixedDeltaTime * externalDamping
+        );
+
+        rb.linearVelocity = velocity + externalVelocity;
 
         if (lookDirection.sqrMagnitude > 0.01f)
         {

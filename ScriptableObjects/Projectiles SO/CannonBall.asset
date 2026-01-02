@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88dbfbdd4f7b41379f08108f71ea3226, type: 3}
   m_Name: CannonBall
   m_EditorClassIdentifier: 
-  damage: 3
-  penetration: 5
-  speed: 35
+  damage: 2
+  penetration: 4
+  speed: 50
   lifetime: 1
   collisionRadius: 0.66
   projectileColor: {r: 0.4185208, g: 0.5049308, b: 0.5188679, a: 1}

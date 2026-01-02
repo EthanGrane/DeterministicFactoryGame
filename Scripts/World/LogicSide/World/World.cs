@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 public class World : MonoBehaviour
 {
     public static World Instance { get; private set; }
-    public const int WorldSize = 82;
+    public const int WorldSize = 100;
     private Tile[,] tiles;
     
     public TerrainSO[] terrains;
