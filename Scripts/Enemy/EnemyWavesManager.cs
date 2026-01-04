@@ -80,6 +80,12 @@ public class EnemyWavesManager : MonoBehaviour
         }
 
         ChangePhase(WavePhase.Spawning);
+        // Destroy builsding obstacle on path
+        BuildingManager buildingManager = BuildingManager.Instance;
+        Vector2Int[] path = EnemyManager.Instance.GetPath();
+        foreach (var pos in path)
+            buildingManager.RemoveBuilding(pos.x,pos.y);
+        
         EnemyWaveSO wave = waves[currentWave];
         for (int i = 0; i < wave.waves.Length; i++)
         {
