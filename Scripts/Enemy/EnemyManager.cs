@@ -93,23 +93,53 @@ public class EnemyManager : MonoBehaviour
         sr.color = c;
     }
     
-public Enemy[] GetEnemiesOnRadius(Vector3 center, float radius)
-{
-    List<Enemy> enemiesDetected = new();
-
-    Vector3 centerFlat = new Vector3(center.x, 0, center.z);
-
-    for (int i = 0; i < enemies.Count; i++)
+    public Enemy[] GetEnemiesOnRadius(Vector3 center, float radius)
     {
-        Vector3 enemyPos = enemies[i].transform.position;
-        enemyPos.y = 0;
+        List<Enemy> enemiesDetected = new();
 
-        if (Vector3.Distance(centerFlat, enemyPos) <= radius)
-            enemiesDetected.Add(enemies[i]);
+        Vector3 centerFlat = new Vector3(center.x, 0, center.z);
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            Vector3 enemyPos = enemies[i].transform.position;
+            enemyPos.y = 0;
+
+            if (Vector3.Distance(centerFlat, enemyPos) <= radius)
+                enemiesDetected.Add(enemies[i]);
+        }
+
+        return enemiesDetected.ToArray();
     }
 
-    return enemiesDetected.ToArray();
-}
+    public Enemy GetEnemyOnRadius(Vector3 center, float radius, EnemySortType type)
+    {
+        Enemy[] detected = GetEnemiesOnRadius(center, radius);
+
+        if (detected.Length == 0)
+            return null;
+
+        switch (type)
+        {
+            case EnemySortType.Near:
+                return detected.OrderBy(e => Vector3.Distance(new Vector3(center.x, 0, center.z),
+                        new Vector3(e.transform.position.x, 0, e.transform.position.z)))
+                    .First();
+
+            case EnemySortType.Stronger:
+                return detected.OrderByDescending(e => e.currentTierSo.tierIndex).First();
+
+            case EnemySortType.First:
+                // El que está más cerca de la meta
+                return detected.OrderBy(e => e.currentPath.Count - e.pathIndex).First();
+
+            case EnemySortType.Last:
+                // El que está más lejos de la meta
+                return detected.OrderByDescending(e => e.currentPath.Count - e.pathIndex).First();
+        }
+
+        return null;
+    }
+
 
 
     public void RegisterEnemy(Enemy enemy)
@@ -159,4 +189,12 @@ public Enemy[] GetEnemiesOnRadius(Vector3 center, float radius)
     public void ProcessDamage(Enemy enemy, Projectile projectile) => ProcessDamage(enemy, projectile.damage);
     
     public int GetEnemiesAliveCount() => enemies.Count;
+}
+
+public enum EnemySortType
+{
+    Near,
+    Stronger,
+    First,
+    Last
 }

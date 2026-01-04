@@ -1,11 +1,15 @@
+using System;
 using UnityEngine;
 
 public class PlayerProjectile : MonoBehaviour
 {
     public ProjectileSO projectile;
     public float timeBetweenShots = 0.5f;
+    public float radius;
+    public EnemySortType type;
+    
+    private float time;
 
-    float time;
 
     void Update()
     {
@@ -15,27 +19,19 @@ public class PlayerProjectile : MonoBehaviour
             return;
         }
 
-        if (Input.GetKey(KeyCode.Space))
+        if(EnemyManager.Instance.GetEnemiesAliveCount() == 0)
+            return;
+        else
         {
 
             time = timeBetweenShots;
 
-            if (Camera.main == null)
-            {
+            Enemy targetEnemy = EnemyManager.Instance.GetEnemyOnRadius(transform.position, radius, type);
+
+            if(targetEnemy == null)
                 return;
-            }
-
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-
-            if (!groundPlane.Raycast(ray, out float enter))
-            {
-                return;
-            }
-
-            Vector3 mouseWorldPos = ray.GetPoint(enter);
-
-            Vector3 dir = mouseWorldPos - transform.position;
+            
+            Vector3 dir = targetEnemy.GetPosition() - transform.position;
             dir.y = 0;
 
             if (dir.sqrMagnitude < 0.0001f)
