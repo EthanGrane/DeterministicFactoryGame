@@ -65,7 +65,7 @@ public class LogicManager : MonoBehaviour
 
             if (logic is ConveyorLogic)
                 continue;
-
+            
             Item itemToPush = null;
             IItemAcceptor targetAcceptor = null;
 
@@ -79,6 +79,9 @@ public class LogicManager : MonoBehaviour
                 var neighbor = World.Instance.GetBuilding(pos);
                 if (neighbor == null) continue;
 
+                if (neighbor.logic is ConveyorLogic)
+                    continue;
+                
                 if (neighbor.logic is IItemAcceptor acceptor)
                 {
                     Item peekItem = provider.PeekFirst();
