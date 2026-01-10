@@ -110,6 +110,8 @@ public class WorldRenderer : MonoBehaviour
         GameObject buildingObject = Instantiate(TestTile, new Vector3(pos.x + 0.5f, 0, pos.y + 0.5f), Quaternion.identity);
         buildingObject.GetComponent<MeshFilter>().mesh = tile.building.block.mesh;
         buildingObjects[pos] = buildingObject;
+        if(tile.building.block.size == 1)
+            buildingObject.transform.rotation = Quaternion.Euler(0,-90 * tile.building.rotation,0);
 
         
         // Rotation on tilemap
