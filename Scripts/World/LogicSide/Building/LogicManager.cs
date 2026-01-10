@@ -18,7 +18,7 @@ public class LogicManager : MonoBehaviour
     {
         Instance = this;
     }
-
+    
     public void Register(BuildingLogic logic)
     {
         logics.Add(logic);

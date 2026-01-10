@@ -73,6 +73,27 @@ public class World : MonoBehaviour
     
     public Building GetBuilding(int x, int y) => GetTile(x, y).building;
     public Building GetBuilding(Vector2Int pos) => GetTile(pos).building;
+
+    public List<Building> GetBuildingsByLogic<T>() where T : BuildingLogic
+    {
+        List<Building> result = new List<Building>();
+
+        for (int x = 0; x < WorldSize; x++)
+        {
+            for (int y = 0; y < WorldSize; y++)
+            {
+                Building b = tiles[x, y].building;
+                if (b == null) continue;
+
+                if (b.logic is T)
+                {
+                    result.Add(b);
+                }
+            }
+        }
+
+        return result;
+    }
     
     public List<Tile> GetNeighbors(Vector2Int pos)
     {

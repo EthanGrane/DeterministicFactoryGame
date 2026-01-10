@@ -307,4 +307,6 @@ public class BuildingManager : MonoBehaviour
         return Vector3.zero;
     }
 
+    public Block[] GetBlocks() => blocks.ToArray();
+    
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class TurretLogic : BuildingLogic, IItemAcceptor
 {
     int projectileRateCount = 0;
+    public Vector2 shootDirection;
 
     readonly Queue<Item> ammoQueue = new();
 
@@ -62,6 +63,7 @@ public class TurretLogic : BuildingLogic, IItemAcceptor
             direction,
             projectile
         );
+        shootDirection = direction;
     }
 
     // ================= IItemAcceptor =================

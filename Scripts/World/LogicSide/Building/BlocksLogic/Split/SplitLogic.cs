@@ -93,14 +93,22 @@ public class SplitLogic : LogisticBuilding
             if (outputTile == null || outputTile.building == null) continue;
 
             var logic = outputTile.building.logic;
-
+            
             if (logic is IItemAcceptor acceptor)
             {
-                if (World.IsBuildFacingPosition(outputTile.building, building.position))
-                    continue;
-                
+                Debug.Log("logic is IItemAcceptor acceptor");
+                if (logic is ConveyorLogic)
+                {
+                    if (World.IsBuildFacingPosition(outputTile.building, building.position))
+                    {
+                        Debug.Log($"{logic.building.block.name} failed on: World.IsBuildFacingPosition(outputTile.building, building.position)");
+                        continue;
+                    }                
+                }
+
                 if (acceptor.CanAccept(item) && acceptor.Insert(item))
                 {
+                    Debug.Log("acceptor.CanAccept(item) && acceptor.Insert(item)");
                     itemBuffer[index] = null;
 
                     // 👉 avanzar el turno solo si salió
@@ -110,6 +118,7 @@ public class SplitLogic : LogisticBuilding
             }
         }
 
+        Debug.Log($"failed on for");
         return false;
     }
     
