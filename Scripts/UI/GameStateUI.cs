@@ -9,6 +9,7 @@ public class GameStateUI : MonoBehaviour
     public TextMeshProUGUI nextRoundTimerText;
     [Header("Game Waves")]
     public TextMeshProUGUI waveCountText;
+    public Button nextWaveButton;
 
     bool timerIsRunning = false;
 
@@ -17,6 +18,11 @@ public class GameStateUI : MonoBehaviour
     private void Start()
     {
         EnemyWavesManager.Instance.onPhaseChanged += CheckPhase;
+        
+        nextWaveButton.onClick.AddListener(() =>
+        {
+            EnemyWavesManager.Instance.SkipWave();
+        });
     }
 
     void CheckPhase(WavePhase phase)
@@ -26,6 +32,7 @@ public class GameStateUI : MonoBehaviour
             timerIsRunning = true;
             nextRoundTimerImage.fillAmount = 1f;
             nextRoundTimerText.enabled = true;
+            nextWaveButton.gameObject.SetActive(true);
         }
         else
         {
@@ -33,6 +40,7 @@ public class GameStateUI : MonoBehaviour
             nextRoundTimerImage.fillAmount = 0f;
             nextRoundTimerText.enabled = false;
             UpdateWaveCount();
+            nextWaveButton.gameObject.SetActive(false);
         }
     }
 

@@ -45,9 +45,12 @@ public class EnemyWavesManager : MonoBehaviour
         enemyWavesCoroutine = StartCoroutine(StartWaveRound());
     }
 
-    [ContextMenu("Start Wave")]
-    public void StartWave()
+    [ContextMenu("Skip Wave")]
+    public void SkipWave()
     {
+        if(wavePhase != WavePhase.Planning)
+            return;
+        
         phaseTimerCountdown = 999;
     }
     
